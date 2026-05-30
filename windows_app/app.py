@@ -1729,6 +1729,44 @@ st.markdown(
         }
     }
 
+    html[data-theme="light"] .stApp {
+        background: linear-gradient(180deg, #fbfbfd 0%, #f4f4f7 100%) !important;
+        color: #22232a !important;
+    }
+
+    html[data-theme="light"] .dashboard-wrap,
+    html[data-theme="light"] [data-testid="stMetric"],
+    html[data-theme="light"] .summary-card,
+    html[data-theme="light"] .app-top-stars,
+    html[data-theme="light"] .hero-ring,
+    html[data-theme="light"] .hero-quick,
+    html[data-theme="light"] [data-testid="stDataFrame"],
+    html[data-theme="light"] div.stExpander {
+        background: #ffffff !important;
+        border-color: #ececf2 !important;
+        color: #22232a !important;
+    }
+
+    html[data-theme="light"] .stTextInput > div > div,
+    html[data-theme="light"] .stNumberInput > div > div,
+    html[data-theme="light"] .stSelectbox > div > div,
+    html[data-theme="light"] .stDateInput > div > div,
+    html[data-theme="light"] .stMultiSelect > div > div,
+    html[data-theme="light"] .stTextArea > div > div {
+        background: #ffffff !important;
+        border-color: #e8e9f0 !important;
+    }
+
+    html[data-theme="light"] .stTextInput input,
+    html[data-theme="light"] .stNumberInput input,
+    html[data-theme="light"] .stDateInput input,
+    html[data-theme="light"] .stTextArea textarea,
+    html[data-theme="light"] .stSelectbox [data-baseweb="select"] input,
+    html[data-theme="light"] .stMultiSelect [data-baseweb="select"] input {
+        color: #22232a !important;
+        -webkit-text-fill-color: #22232a !important;
+    }
+
     @media (max-width: 900px) {
         .main .block-container {
             padding-top: 0.8rem;
@@ -1774,9 +1812,8 @@ st.markdown(
 
         .app-bottom-nav {
             display: none !important;
-            display: inline-flex;
+        }
 
-            justify-content: center;
         .app-mid-nav-mobile {
             display: grid;
         }
@@ -1784,7 +1821,6 @@ st.markdown(
         [data-baseweb="popover"],
         [role="dialog"] {
             z-index: 1200 !important;
-            width: 100%;
         }
 
         .app-bottom-nav {
@@ -1793,16 +1829,14 @@ st.markdown(
         }
 
         .app-nav-item {
-            display: inline-flex;
+            min-height: 44px;
             font-size: 0.78rem;
-            justify-content: center;
             border-radius: 12px;
             gap: 6px;
         }
 
         .app-nav-icon {
             font-size: 1.8rem;
-            width: 100%;
         }
     }
 
