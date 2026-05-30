@@ -1660,8 +1660,8 @@ st.markdown(
     html[data-theme="dark"] .stApp,
     body[data-theme="dark"] .stApp,
     [data-theme="dark"] .stApp {
-        background: linear-gradient(180deg, #0f1319 0%, #11141a 100%) !important;
-        color: #e6ebf5 !important;
+        background: linear-gradient(180deg, #071021 0%, #0b1730 100%) !important;
+        color: #eef4ff !important;
     }
 
     html[data-theme="dark"] .dashboard-wrap,
@@ -1688,9 +1688,9 @@ st.markdown(
     html[data-theme="dark"] div.stExpander,
     body[data-theme="dark"] div.stExpander,
     [data-theme="dark"] div.stExpander {
-        background: #171c24 !important;
-        border-color: #2b3340 !important;
-        color: #e6ebf5 !important;
+        background: #121f38 !important;
+        border-color: #2a3f69 !important;
+        color: #eef4ff !important;
     }
 
     html[data-theme="dark"] [data-testid="stMetricLabel"],
@@ -1711,7 +1711,7 @@ st.markdown(
     html[data-theme="dark"] .ring-label,
     body[data-theme="dark"] .ring-label,
     [data-theme="dark"] .ring-label {
-        color: #aeb7c8 !important;
+        color: #b9c9ea !important;
     }
 
     html[data-theme="dark"] [data-testid="stMetricValue"],
@@ -1726,7 +1726,7 @@ st.markdown(
     html[data-theme="dark"] .app-top-stars-value,
     body[data-theme="dark"] .app-top-stars-value,
     [data-theme="dark"] .app-top-stars-value {
-        color: #e6ebf5 !important;
+        color: #eef4ff !important;
     }
 
     html[data-theme="dark"] .stTextInput > div > div,
@@ -1753,8 +1753,8 @@ st.markdown(
     html[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div,
     body[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div,
     [data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div {
-        background: #151a21 !important;
-        border-color: #2b3340 !important;
+        background: #1f3154 !important;
+        border-color: #355282 !important;
     }
 
     html[data-theme="dark"] .stTextInput input,
@@ -1769,8 +1769,8 @@ st.markdown(
     html[data-theme="dark"] .stMultiSelect [data-baseweb="select"] input,
     html[data-theme="dark"] .stSelectbox [data-baseweb="select"] span,
     html[data-theme="dark"] .stMultiSelect [data-baseweb="select"] span {
-        color: #f0f4ff !important;
-        -webkit-text-fill-color: #f0f4ff !important;
+        color: #f6f9ff !important;
+        -webkit-text-fill-color: #f6f9ff !important;
     }
 
     html[data-theme="dark"] .app-top-nav-item,
@@ -1785,9 +1785,27 @@ st.markdown(
     html[data-theme="dark"] .app-top-nav-item:visited {
     body[data-theme="dark"] .app-top-nav-item:visited,
     [data-theme="dark"] .app-top-nav-item:visited {
-        background: #eef1f4 !important;
-        color: #101318 !important;
-        border-color: #d8dee6 !important;
+        background: #27406c !important;
+        color: #f6f9ff !important;
+        border-color: #3e5f97 !important;
+        box-shadow: 0 8px 16px rgba(10, 18, 36, 0.35) !important;
+    }
+
+    html[data-theme="dark"] div.stButton > button,
+    body[data-theme="dark"] div.stButton > button,
+    [data-theme="dark"] div.stButton > button {
+        background: #27406c !important;
+        color: #f6f9ff !important;
+        border: 1px solid #3e5f97 !important;
+        box-shadow: 0 8px 16px rgba(10, 18, 36, 0.35) !important;
+    }
+
+    html[data-theme="dark"] div.stButton > button:hover,
+    body[data-theme="dark"] div.stButton > button:hover,
+    [data-theme="dark"] div.stButton > button:hover {
+        background: #335286 !important;
+        color: #ffffff !important;
+        border-color: #5073af !important;
     }
 
     html[data-theme="dark"] [data-testid="stToolbar"] button,
@@ -1803,8 +1821,8 @@ st.markdown(
 
     @media (prefers-color-scheme: dark) {
         .stApp {
-            background: linear-gradient(180deg, #0f1319 0%, #11141a 100%) !important;
-            color: #e6ebf5 !important;
+            background: linear-gradient(180deg, #071021 0%, #0b1730 100%) !important;
+            color: #eef4ff !important;
         }
     }
 
