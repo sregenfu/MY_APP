@@ -2282,7 +2282,6 @@ if active_page == "profil":
                 st.error("Backup-Import fehlgeschlagen. Bitte eine gueltige Backup-JSON verwenden.")
 
 if active_page == "food":
-    st.subheader("Lebensmittel")
     all_foods = sort_foods_by_usage(store["foods"], store["logs"])
     foods = list(all_foods)
     selected_food = None
@@ -2474,7 +2473,6 @@ if active_page == "food":
                 st.success("Lebensmittel gespeichert")
 
 if active_page == "mahlz":
-    st.subheader("🍽️ Mahlz.")
     d = st.date_input("📅", value=date.today(), format="DD.MM.YYYY")
     day = d.isoformat()
     log = todays_log(store["logs"], day)
@@ -2482,11 +2480,9 @@ if active_page == "mahlz":
 
     meals_count = len(log.get("entries", []))
 
-    c_meals, c_hint = st.columns([1, 2])
+    c_meals, _ = st.columns([1, 2])
     with c_meals:
         st.metric("🍽️ Mahlzeiten", meals_count)
-    with c_hint:
-        st.caption("🏃/👟 auf Aktiv.-Seite")
 
     left, right = st.columns([2, 1])
     with left:
@@ -2852,7 +2848,6 @@ if active_page == "mahlz":
         st.caption("Noch keine Einträge")
 
 if active_page == "aktiv":
-    st.subheader("🏃 Aktiv.")
     act_date = st.date_input("📅", value=date.today(), format="DD.MM.YYYY", key="act_date")
     act_day = act_date.isoformat()
     act_log = todays_log(store["logs"], act_day)
@@ -3085,10 +3080,7 @@ if active_page == "stats":
         st.caption("Noch keine Gewichtseinträge vorhanden.")
 
 if active_page == "gewicht":
-    st.subheader("Gewicht")
     p = store["profile"]
-
-    st.write("Gewichtsprotokoll")
     
     st.markdown('<div class="weight-input-row">', unsafe_allow_html=True)
     w_col1, w_col2 = st.columns(2, gap="small")
