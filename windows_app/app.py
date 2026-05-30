@@ -985,7 +985,7 @@ def favorite_key(kind: str, name: str) -> str:
     return f"{kind}:{name.strip().lower()}"
 
 
-st.set_page_config(page_title=APP_TITLE, layout="wide")
+st.set_page_config(page_title=APP_TITLE, layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown(
     """
@@ -1292,6 +1292,30 @@ st.markdown(
     .app-top-ring .ring-label {
         font-size: 0.62rem;
         margin-top: 2px;
+    }
+
+    .app-top-stars {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #ffffff;
+        border: 1px solid #ececf2;
+        border-radius: 12px;
+        padding: 8px 10px;
+        min-height: 46px;
+    }
+
+    .app-top-stars-icon {
+        color: #d4a400;
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+
+    .app-top-stars-value {
+        color: #2a2d36;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1;
     }
 
     .app-top-nav-item {
@@ -1901,6 +1925,7 @@ day_progress_pct = 0.0 if today_target <= 0 else max(0.0, min(100.0, (today_used
 goal_total = max(0.1, float(live_profile["start_weight"]) - float(live_profile["goal_weight"]))
 goal_done = max(0.0, float(live_profile["start_weight"]) - float(live_profile["current_weight"]))
 goal_pct = max(0.0, min(100.0, (goal_done / goal_total) * 100.0))
+stars_count = stars_earned(float(live_profile["start_weight"]), float(live_profile["current_weight"]))
 
 st.markdown(
     f'''
@@ -1918,6 +1943,10 @@ st.markdown(
                     <div class="ring-label">Übrig</div>
                 </div>
             </div>
+        </div>
+        <div class="app-top-stars" title="Sterne">
+            <span class="app-top-stars-icon">⭐⭐⭐</span>
+            <span class="app-top-stars-value">{stars_count}</span>
         </div>
     </div>
     ''',
@@ -1994,13 +2023,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-with st.sidebar:
-    st.subheader("Kurzstatus")
-    st.metric("Tagespunkte", d_points)
-    st.metric("Wochenextra", f"{w_remaining:.1f} / {w_extra}")
-    st.caption(f"Erneuert jeden {live_profile.get('weigh_day', 'Montag')} (Wiegetag)")
-    st.metric("Sterne", stars_earned(float(live_profile["start_weight"]), float(live_profile["current_weight"])))
 
 if "main_nav" not in st.session_state:
     st.session_state["main_nav"] = "mahlz"
