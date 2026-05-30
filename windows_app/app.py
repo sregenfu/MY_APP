@@ -1658,36 +1658,27 @@ st.markdown(
     }
 
     html[data-theme="dark"] .stApp,
-    body[data-theme="dark"] .stApp,
-    [data-theme="dark"] .stApp {
+    body[data-theme="dark"] .stApp {
         background: linear-gradient(180deg, #071021 0%, #0b1730 100%) !important;
         color: #eef4ff !important;
     }
 
     html[data-theme="dark"] .dashboard-wrap,
     body[data-theme="dark"] .dashboard-wrap,
-    [data-theme="dark"] .dashboard-wrap,
     html[data-theme="dark"] [data-testid="stMetric"],
     body[data-theme="dark"] [data-testid="stMetric"],
-    [data-theme="dark"] [data-testid="stMetric"],
     html[data-theme="dark"] .summary-card,
     body[data-theme="dark"] .summary-card,
-    [data-theme="dark"] .summary-card,
     html[data-theme="dark"] .app-top-stars,
     body[data-theme="dark"] .app-top-stars,
-    [data-theme="dark"] .app-top-stars,
     html[data-theme="dark"] .hero-ring,
     body[data-theme="dark"] .hero-ring,
-    [data-theme="dark"] .hero-ring,
     html[data-theme="dark"] .hero-quick,
     body[data-theme="dark"] .hero-quick,
-    [data-theme="dark"] .hero-quick,
     html[data-theme="dark"] [data-testid="stDataFrame"],
     body[data-theme="dark"] [data-testid="stDataFrame"],
-    [data-theme="dark"] [data-testid="stDataFrame"],
     html[data-theme="dark"] div.stExpander,
-    body[data-theme="dark"] div.stExpander,
-    [data-theme="dark"] div.stExpander {
+    body[data-theme="dark"] div.stExpander {
         background: #121f38 !important;
         border-color: #2a3f69 !important;
         color: #eef4ff !important;
@@ -1695,64 +1686,46 @@ st.markdown(
 
     html[data-theme="dark"] [data-testid="stMetricLabel"],
     body[data-theme="dark"] [data-testid="stMetricLabel"],
-    [data-theme="dark"] [data-testid="stMetricLabel"],
     html[data-theme="dark"] [data-testid="stWidgetLabel"] p,
     body[data-theme="dark"] [data-testid="stWidgetLabel"] p,
-    [data-theme="dark"] [data-testid="stWidgetLabel"] p,
     html[data-theme="dark"] .summary-label,
     body[data-theme="dark"] .summary-label,
-    [data-theme="dark"] .summary-label,
     html[data-theme="dark"] .summary-foot,
     body[data-theme="dark"] .summary-foot,
-    [data-theme="dark"] .summary-foot,
     html[data-theme="dark"] .dashboard-sub,
     body[data-theme="dark"] .dashboard-sub,
-    [data-theme="dark"] .dashboard-sub,
     html[data-theme="dark"] .ring-label,
-    body[data-theme="dark"] .ring-label,
-    [data-theme="dark"] .ring-label {
+    body[data-theme="dark"] .ring-label {
         color: #b9c9ea !important;
     }
 
     html[data-theme="dark"] [data-testid="stMetricValue"],
     body[data-theme="dark"] [data-testid="stMetricValue"],
-    [data-theme="dark"] [data-testid="stMetricValue"],
     html[data-theme="dark"] .summary-value,
     body[data-theme="dark"] .summary-value,
-    [data-theme="dark"] .summary-value,
     html[data-theme="dark"] .dashboard-title,
     body[data-theme="dark"] .dashboard-title,
-    [data-theme="dark"] .dashboard-title,
     html[data-theme="dark"] .app-top-stars-value,
-    body[data-theme="dark"] .app-top-stars-value,
-    [data-theme="dark"] .app-top-stars-value {
+    body[data-theme="dark"] .app-top-stars-value {
         color: #eef4ff !important;
     }
 
     html[data-theme="dark"] .stTextInput > div > div,
     body[data-theme="dark"] .stTextInput > div > div,
-    [data-theme="dark"] .stTextInput > div > div,
     html[data-theme="dark"] .stNumberInput > div > div,
     body[data-theme="dark"] .stNumberInput > div > div,
-    [data-theme="dark"] .stNumberInput > div > div,
     html[data-theme="dark"] .stSelectbox > div > div,
     body[data-theme="dark"] .stSelectbox > div > div,
-    [data-theme="dark"] .stSelectbox > div > div,
     html[data-theme="dark"] .stDateInput > div > div,
     body[data-theme="dark"] .stDateInput > div > div,
-    [data-theme="dark"] .stDateInput > div > div,
     html[data-theme="dark"] .stMultiSelect > div > div,
     body[data-theme="dark"] .stMultiSelect > div > div,
-    [data-theme="dark"] .stMultiSelect > div > div,
     html[data-theme="dark"] .stTextArea > div > div,
     body[data-theme="dark"] .stTextArea > div > div,
-    [data-theme="dark"] .stTextArea > div > div,
     html[data-theme="dark"] .stSelectbox [data-baseweb="select"] > div,
     body[data-theme="dark"] .stSelectbox [data-baseweb="select"] > div,
-    [data-theme="dark"] .stSelectbox [data-baseweb="select"] > div,
     html[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div,
-    body[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div,
-    [data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div {
+    body[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div {
         background: #1f3154 !important;
         border-color: #355282 !important;
     }
@@ -1775,16 +1748,12 @@ st.markdown(
 
     html[data-theme="dark"] .app-top-nav-item,
     body[data-theme="dark"] .app-top-nav-item,
-    [data-theme="dark"] .app-top-nav-item,
     html[data-theme="dark"] .app-top-nav-item:hover,
     body[data-theme="dark"] .app-top-nav-item:hover,
-    [data-theme="dark"] .app-top-nav-item:hover,
     html[data-theme="dark"] .app-top-nav-item:active,
     body[data-theme="dark"] .app-top-nav-item:active,
-    [data-theme="dark"] .app-top-nav-item:active,
     html[data-theme="dark"] .app-top-nav-item:visited,
-    body[data-theme="dark"] .app-top-nav-item:visited,
-    [data-theme="dark"] .app-top-nav-item:visited {
+    body[data-theme="dark"] .app-top-nav-item:visited {
         background: #27406c !important;
         color: #f6f9ff !important;
         border-color: #3e5f97 !important;
@@ -1792,8 +1761,7 @@ st.markdown(
     }
 
     html[data-theme="dark"] div.stButton > button,
-    body[data-theme="dark"] div.stButton > button,
-    [data-theme="dark"] div.stButton > button {
+    body[data-theme="dark"] div.stButton > button {
         background: #27406c !important;
         color: #f6f9ff !important;
         border: 1px solid #3e5f97 !important;
@@ -1801,8 +1769,7 @@ st.markdown(
     }
 
     html[data-theme="dark"] div.stButton > button:hover,
-    body[data-theme="dark"] div.stButton > button:hover,
-    [data-theme="dark"] div.stButton > button:hover {
+    body[data-theme="dark"] div.stButton > button:hover {
         background: #335286 !important;
         color: #ffffff !important;
         border-color: #5073af !important;
@@ -1810,46 +1777,35 @@ st.markdown(
 
     html[data-theme="dark"] [data-testid="stToolbar"] button,
     body[data-theme="dark"] [data-testid="stToolbar"] button,
-    [data-theme="dark"] [data-testid="stToolbar"] button,
     html[data-theme="dark"] [data-testid="stToolbar"] svg,
-    body[data-theme="dark"] [data-testid="stToolbar"] svg,
-    [data-theme="dark"] [data-testid="stToolbar"] svg {
+    body[data-theme="dark"] [data-testid="stToolbar"] svg {
         color: #e6ebf5 !important;
         fill: #e6ebf5 !important;
         stroke: #e6ebf5 !important;
     }
 
     html[data-theme="light"] .stApp,
-    body[data-theme="light"] .stApp,
-    [data-theme="light"] .stApp {
+    body[data-theme="light"] .stApp {
         background: linear-gradient(180deg, #fbfbfd 0%, #f4f4f7 100%) !important;
         color: #22232a !important;
     }
 
     html[data-theme="light"] .dashboard-wrap,
     body[data-theme="light"] .dashboard-wrap,
-    [data-theme="light"] .dashboard-wrap,
     html[data-theme="light"] [data-testid="stMetric"],
     body[data-theme="light"] [data-testid="stMetric"],
-    [data-theme="light"] [data-testid="stMetric"],
     html[data-theme="light"] .summary-card,
     body[data-theme="light"] .summary-card,
-    [data-theme="light"] .summary-card,
     html[data-theme="light"] .app-top-stars,
     body[data-theme="light"] .app-top-stars,
-    [data-theme="light"] .app-top-stars,
     html[data-theme="light"] .hero-ring,
     body[data-theme="light"] .hero-ring,
-    [data-theme="light"] .hero-ring,
     html[data-theme="light"] .hero-quick,
     body[data-theme="light"] .hero-quick,
-    [data-theme="light"] .hero-quick,
     html[data-theme="light"] [data-testid="stDataFrame"],
     body[data-theme="light"] [data-testid="stDataFrame"],
-    [data-theme="light"] [data-testid="stDataFrame"],
-    html[data-theme="light"] div.stExpander {
-    body[data-theme="light"] div.stExpander,
-    [data-theme="light"] div.stExpander {
+    html[data-theme="light"] div.stExpander,
+    body[data-theme="light"] div.stExpander {
         background: #ffffff !important;
         border-color: #ececf2 !important;
         color: #22232a !important;
@@ -1857,28 +1813,20 @@ st.markdown(
 
     html[data-theme="light"] .stTextInput > div > div,
     body[data-theme="light"] .stTextInput > div > div,
-    [data-theme="light"] .stTextInput > div > div,
     html[data-theme="light"] .stNumberInput > div > div,
     body[data-theme="light"] .stNumberInput > div > div,
-    [data-theme="light"] .stNumberInput > div > div,
     html[data-theme="light"] .stSelectbox > div > div,
     body[data-theme="light"] .stSelectbox > div > div,
-    [data-theme="light"] .stSelectbox > div > div,
     html[data-theme="light"] .stDateInput > div > div,
     body[data-theme="light"] .stDateInput > div > div,
-    [data-theme="light"] .stDateInput > div > div,
     html[data-theme="light"] .stMultiSelect > div > div,
     body[data-theme="light"] .stMultiSelect > div > div,
-    [data-theme="light"] .stMultiSelect > div > div,
     html[data-theme="light"] .stTextArea > div > div,
     body[data-theme="light"] .stTextArea > div > div,
-    [data-theme="light"] .stTextArea > div > div,
     html[data-theme="light"] .stSelectbox [data-baseweb="select"] > div,
     body[data-theme="light"] .stSelectbox [data-baseweb="select"] > div,
-    [data-theme="light"] .stSelectbox [data-baseweb="select"] > div,
-    html[data-theme="light"] .stMultiSelect [data-baseweb="select"] > div {
-    body[data-theme="light"] .stMultiSelect [data-baseweb="select"] > div,
-    [data-theme="light"] .stMultiSelect [data-baseweb="select"] > div {
+    html[data-theme="light"] .stMultiSelect [data-baseweb="select"] > div,
+    body[data-theme="light"] .stMultiSelect [data-baseweb="select"] > div {
         background: #f3f5f8 !important;
         border-color: #e8e9f0 !important;
     }
