@@ -1782,7 +1782,7 @@ st.markdown(
     html[data-theme="dark"] .app-top-nav-item:active,
     body[data-theme="dark"] .app-top-nav-item:active,
     [data-theme="dark"] .app-top-nav-item:active,
-    html[data-theme="dark"] .app-top-nav-item:visited {
+    html[data-theme="dark"] .app-top-nav-item:visited,
     body[data-theme="dark"] .app-top-nav-item:visited,
     [data-theme="dark"] .app-top-nav-item:visited {
         background: #27406c !important;
