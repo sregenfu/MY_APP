@@ -1657,48 +1657,102 @@ st.markdown(
         color: #fff;
     }
 
-    html[data-theme="dark"] .stApp {
+    html[data-theme="dark"] .stApp,
+    body[data-theme="dark"] .stApp,
+    [data-theme="dark"] .stApp {
         background: linear-gradient(180deg, #0f1319 0%, #11141a 100%) !important;
         color: #e6ebf5 !important;
     }
 
     html[data-theme="dark"] .dashboard-wrap,
+    body[data-theme="dark"] .dashboard-wrap,
+    [data-theme="dark"] .dashboard-wrap,
     html[data-theme="dark"] [data-testid="stMetric"],
+    body[data-theme="dark"] [data-testid="stMetric"],
+    [data-theme="dark"] [data-testid="stMetric"],
     html[data-theme="dark"] .summary-card,
+    body[data-theme="dark"] .summary-card,
+    [data-theme="dark"] .summary-card,
     html[data-theme="dark"] .app-top-stars,
+    body[data-theme="dark"] .app-top-stars,
+    [data-theme="dark"] .app-top-stars,
     html[data-theme="dark"] .hero-ring,
+    body[data-theme="dark"] .hero-ring,
+    [data-theme="dark"] .hero-ring,
     html[data-theme="dark"] .hero-quick,
+    body[data-theme="dark"] .hero-quick,
+    [data-theme="dark"] .hero-quick,
     html[data-theme="dark"] [data-testid="stDataFrame"],
-    html[data-theme="dark"] div.stExpander {
+    body[data-theme="dark"] [data-testid="stDataFrame"],
+    [data-theme="dark"] [data-testid="stDataFrame"],
+    html[data-theme="dark"] div.stExpander,
+    body[data-theme="dark"] div.stExpander,
+    [data-theme="dark"] div.stExpander {
         background: #171c24 !important;
         border-color: #2b3340 !important;
         color: #e6ebf5 !important;
     }
 
     html[data-theme="dark"] [data-testid="stMetricLabel"],
+    body[data-theme="dark"] [data-testid="stMetricLabel"],
+    [data-theme="dark"] [data-testid="stMetricLabel"],
     html[data-theme="dark"] [data-testid="stWidgetLabel"] p,
+    body[data-theme="dark"] [data-testid="stWidgetLabel"] p,
+    [data-theme="dark"] [data-testid="stWidgetLabel"] p,
     html[data-theme="dark"] .summary-label,
+    body[data-theme="dark"] .summary-label,
+    [data-theme="dark"] .summary-label,
     html[data-theme="dark"] .summary-foot,
+    body[data-theme="dark"] .summary-foot,
+    [data-theme="dark"] .summary-foot,
     html[data-theme="dark"] .dashboard-sub,
-    html[data-theme="dark"] .ring-label {
+    body[data-theme="dark"] .dashboard-sub,
+    [data-theme="dark"] .dashboard-sub,
+    html[data-theme="dark"] .ring-label,
+    body[data-theme="dark"] .ring-label,
+    [data-theme="dark"] .ring-label {
         color: #aeb7c8 !important;
     }
 
     html[data-theme="dark"] [data-testid="stMetricValue"],
+    body[data-theme="dark"] [data-testid="stMetricValue"],
+    [data-theme="dark"] [data-testid="stMetricValue"],
     html[data-theme="dark"] .summary-value,
+    body[data-theme="dark"] .summary-value,
+    [data-theme="dark"] .summary-value,
     html[data-theme="dark"] .dashboard-title,
-    html[data-theme="dark"] .app-top-stars-value {
+    body[data-theme="dark"] .dashboard-title,
+    [data-theme="dark"] .dashboard-title,
+    html[data-theme="dark"] .app-top-stars-value,
+    body[data-theme="dark"] .app-top-stars-value,
+    [data-theme="dark"] .app-top-stars-value {
         color: #e6ebf5 !important;
     }
 
     html[data-theme="dark"] .stTextInput > div > div,
+    body[data-theme="dark"] .stTextInput > div > div,
+    [data-theme="dark"] .stTextInput > div > div,
     html[data-theme="dark"] .stNumberInput > div > div,
+    body[data-theme="dark"] .stNumberInput > div > div,
+    [data-theme="dark"] .stNumberInput > div > div,
     html[data-theme="dark"] .stSelectbox > div > div,
+    body[data-theme="dark"] .stSelectbox > div > div,
+    [data-theme="dark"] .stSelectbox > div > div,
     html[data-theme="dark"] .stDateInput > div > div,
+    body[data-theme="dark"] .stDateInput > div > div,
+    [data-theme="dark"] .stDateInput > div > div,
     html[data-theme="dark"] .stMultiSelect > div > div,
+    body[data-theme="dark"] .stMultiSelect > div > div,
+    [data-theme="dark"] .stMultiSelect > div > div,
     html[data-theme="dark"] .stTextArea > div > div,
+    body[data-theme="dark"] .stTextArea > div > div,
+    [data-theme="dark"] .stTextArea > div > div,
     html[data-theme="dark"] .stSelectbox [data-baseweb="select"] > div,
-    html[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div {
+    body[data-theme="dark"] .stSelectbox [data-baseweb="select"] > div,
+    [data-theme="dark"] .stSelectbox [data-baseweb="select"] > div,
+    html[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div,
+    body[data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div,
+    [data-theme="dark"] .stMultiSelect [data-baseweb="select"] > div {
         background: #151a21 !important;
         border-color: #2b3340 !important;
     }
@@ -1720,12 +1774,38 @@ st.markdown(
     }
 
     html[data-theme="dark"] .app-top-nav-item,
+    body[data-theme="dark"] .app-top-nav-item,
+    [data-theme="dark"] .app-top-nav-item,
     html[data-theme="dark"] .app-top-nav-item:hover,
+    body[data-theme="dark"] .app-top-nav-item:hover,
+    [data-theme="dark"] .app-top-nav-item:hover,
     html[data-theme="dark"] .app-top-nav-item:active,
+    body[data-theme="dark"] .app-top-nav-item:active,
+    [data-theme="dark"] .app-top-nav-item:active,
     html[data-theme="dark"] .app-top-nav-item:visited {
+    body[data-theme="dark"] .app-top-nav-item:visited,
+    [data-theme="dark"] .app-top-nav-item:visited {
         background: #eef1f4 !important;
         color: #101318 !important;
         border-color: #d8dee6 !important;
+    }
+
+    html[data-theme="dark"] [data-testid="stToolbar"] button,
+    body[data-theme="dark"] [data-testid="stToolbar"] button,
+    [data-theme="dark"] [data-testid="stToolbar"] button,
+    html[data-theme="dark"] [data-testid="stToolbar"] svg,
+    body[data-theme="dark"] [data-testid="stToolbar"] svg,
+    [data-theme="dark"] [data-testid="stToolbar"] svg {
+        color: #e6ebf5 !important;
+        fill: #e6ebf5 !important;
+        stroke: #e6ebf5 !important;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .stApp {
+            background: linear-gradient(180deg, #0f1319 0%, #11141a 100%) !important;
+            color: #e6ebf5 !important;
+        }
     }
 
     html[data-theme="light"] .stApp {
