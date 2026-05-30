@@ -3124,3 +3124,46 @@ if active_page == "gewicht":
         wtable = wtable.rename(columns={"date": "Datum", "weight": "Gewicht (kg)", "note": "Notiz"})
         st.dataframe(wtable[["Datum", "Gewicht (kg)", "Notiz"]], width="stretch", hide_index=True)
 
+        delete_candidates = []
+        for idx, entry in enumerate(store["weights"]):
+            raw_date = str(entry.get("date", ""))
+            parsed_date = pd.to_datetime(raw_date, errors="coerce")
+            display_date = parsed_date.strftime("%d.%m.%Y") if not pd.isna(parsed_date) else raw_date
+            display_weight = float(entry.get("weight", 0.0) or 0.0)
+            note = str(entry.get("note", "") or "").strip()
+            short_note = f" | {note[:28]}" if note else ""
+
+            delete_candidates.append(
+                {
+                    "idx": idx,
+                    "sort_date": raw_date,
+                    "label": f"{display_date} - {display_weight:.1f} kg{short_note}",
+                }
+            )
+
+        delete_candidates.sort(key=lambda x: x["sort_date"], reverse=True)
+        delete_ids = [item["idx"] for item in delete_candidates]
+        delete_label_by_idx = {item["idx"]: item["label"] for item in delete_candidates}
+
+        st.write("Eintrag löschen")
+        selected_delete_idx = st.selectbox(
+            "Zu löschender Gewichtseintrag",
+            delete_ids,
+            format_func=lambda idx: delete_label_by_idx.get(idx, str(idx)),
+            key="weight_delete_pick",
+        )
+
+        if st.button("Ausgewählten Eintrag löschen", key="delete_weight_entry"):
+            removed = store["weights"].pop(selected_delete_idx)
+
+            if store["weights"]:
+                latest_entry = max(store["weights"], key=lambda x: str(x.get("date", "")))
+                try:
+                    store["profile"]["current_weight"] = float(latest_entry.get("weight", store["profile"]["current_weight"]))
+                except (TypeError, ValueError):
+                    pass
+
+            save_store(store)
+            st.success(f"Eintrag gelöscht: {removed.get('date', '')}")
+            st.rerun()
+
