@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MY_APP Download</title>
+    <style>
+        :root {
+            --bg: #f7f2f6;
+            --card: #ffffff;
+            --text: #1f2430;
+            --muted: #5f6573;
+            --accent: #c21875;
+            --accent-dark: #9e135f;
+            --border: #e7dfe6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top right, #ffd7eb 0, transparent 28%),
+                linear-gradient(180deg, #fff7fb 0%, var(--bg) 100%);
+            min-height: 100vh;
+        }
+
+        .wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 18px 60px;
+        }
+
+        .hero {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 18px 45px rgba(70, 24, 56, 0.08);
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #fde8f3;
+            color: var(--accent-dark);
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+        }
+
+        h1 {
+            margin: 16px 0 10px;
+            font-size: clamp(32px, 6vw, 54px);
+            line-height: 1.02;
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 28px rgba(70, 24, 56, 0.05);
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+
+        .card p,
+        .card li {
+            font-size: 16px;
+        }
+
+        ul {
+            margin: 10px 0 0;
+            padding-left: 18px;
+            color: var(--muted);
+        }
+
+        code {
+            background: #f7edf3;
+            padding: 2px 6px;
+            border-radius: 8px;
+            color: #7d2151;
+        }
+
+        .footer {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        @media (max-width: 720px) {
+            .wrap {
+                padding-top: 24px;
+            }
+
+            .hero,
+            .card {
+                padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <section class="hero">
+            <span class="eyebrow">MY_APP Downloadseite</span>
+            <h1>Download und Start von MY_APP</h1>
+            <p>Hier kannst du den aktuellen Stand als ZIP herunterladen. GitHub Pages dient hier als Downloadseite, nicht als laufende Streamlit-App.</p>
+            <div class="actions">
+                <a class="btn btn-primary" href="https://github.com/sregenfu/MY_APP/archive/refs/heads/main.zip">ZIP herunterladen</a>
+                <a class="btn btn-secondary" href="https://github.com/sregenfu/MY_APP">Repository ansehen</a>
+            </div>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <h2>Windows-Version starten</h2>
+                <p>Nach dem Entpacken findest du die lokale Web-App im Ordner <code>windows_app</code>.</p>
+                <ul>
+                    <li><code>windows_app/run_windows.bat</code> starten</li>
+                    <li>Falls noetig Python-Abhaengigkeiten installieren</li>
+                    <li>Dann die lokale Browser-Adresse oeffnen</li>
+                </ul>
+            </article>
+
+            <article class="card">
+                <h2>Was auf GitHub.io geht</h2>
+                <p>GitHub Pages kann statische Dateien bereitstellen. Deshalb ist diese Seite perfekt fuer Download, Anleitung und Links.</p>
+                <ul>
+                    <li>ZIP-Download des Projekts</li>
+                    <li>Direkter Link zum Quellcode</li>
+                    <li>Kurze Startanleitung</li>
+                </ul>
+            </article>
+        </section>
+
+        <p class="footer">Wenn du spaeter eine direkt online laufende Version willst, kann ich dir die Streamlit-App zusaetzlich auf Streamlit Community Cloud oder Render bereitstellen.</p>
+    </main>
+</body>
+</html>
