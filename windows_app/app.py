@@ -3117,7 +3117,21 @@ if active_page == "gewicht":
     if store["weights"]:
         wdf = pd.DataFrame(store["weights"])
         wdf = wdf.sort_values("date")
-        st.line_chart(wdf.set_index("date")["weight"])
+        wdf["weight"] = wdf["weight"].astype(float)
+
+        min_weight = float(wdf["weight"].min())
+        max_weight = float(wdf["weight"].max())
+        spread_kg = max_weight - min_weight
+
+        # Adaptive chart: for small early changes, show gram deltas so progress is visible.
+        if len(wdf) >= 2 and spread_kg < 2.0:
+            baseline = float(wdf["weight"].iloc[0])
+            wdf["delta_g"] = ((wdf["weight"] - baseline) * 1000.0).round().astype(int)
+            st.caption("Feinmodus aktiv: Verlauf in Gramm relativ zum ersten Eintrag")
+            st.line_chart(wdf.set_index("date")["delta_g"])
+        else:
+            st.caption("Standardmodus: Verlauf in Kilogramm")
+            st.line_chart(wdf.set_index("date")["weight"])
 
         wtable = pd.DataFrame(store["weights"]).copy()
         wtable = wtable.sort_values("date", ascending=False)
