@@ -2443,12 +2443,12 @@ if active_page == "mahlz":
 
     left, right = st.columns([2, 1])
     with left:
-        quick_entries = recent_log_entries(store["logs"], limit=10)
+        quick_entries = recent_log_entries(store["logs"], limit=5)
         if quick_entries:
             st.write("⏱️ Schnellwahl")
-            q_cols = st.columns(2)
+            q_cols = st.columns(5, gap="small")
             for idx, q in enumerate(quick_entries):
-                q_col = q_cols[idx % 2]
+                q_col = q_cols[idx]
                 unit = "x" if q.get("is_combo", False) else "g"
                 label = f"{q['name']} ({q['amount']:.1f} {unit}, {q['points']:.1f} P)"
                 with q_col:
@@ -2468,7 +2468,7 @@ if active_page == "mahlz":
                         st.success(f"{q['name']} hinzugefügt")
                         st.rerun()
 
-            st.caption("Die 10 zuletzt genutzten Einträge stehen hier immer oben zur Schnellwahl.")
+            st.caption("Die 5 zuletzt genutzten Einträge stehen hier oben zur Schnellwahl.")
 
         ordered_foods = sort_foods_by_usage(store["foods"], store["logs"])
         combos = list(store.get("combos", []))
