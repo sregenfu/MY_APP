@@ -1819,39 +1819,66 @@ st.markdown(
         stroke: #e6ebf5 !important;
     }
 
-    @media (prefers-color-scheme: dark) {
-        .stApp {
-            background: linear-gradient(180deg, #071021 0%, #0b1730 100%) !important;
-            color: #eef4ff !important;
-        }
-    }
-
-    html[data-theme="light"] .stApp {
+    html[data-theme="light"] .stApp,
+    body[data-theme="light"] .stApp,
+    [data-theme="light"] .stApp {
         background: linear-gradient(180deg, #fbfbfd 0%, #f4f4f7 100%) !important;
         color: #22232a !important;
     }
 
     html[data-theme="light"] .dashboard-wrap,
+    body[data-theme="light"] .dashboard-wrap,
+    [data-theme="light"] .dashboard-wrap,
     html[data-theme="light"] [data-testid="stMetric"],
+    body[data-theme="light"] [data-testid="stMetric"],
+    [data-theme="light"] [data-testid="stMetric"],
     html[data-theme="light"] .summary-card,
+    body[data-theme="light"] .summary-card,
+    [data-theme="light"] .summary-card,
     html[data-theme="light"] .app-top-stars,
+    body[data-theme="light"] .app-top-stars,
+    [data-theme="light"] .app-top-stars,
     html[data-theme="light"] .hero-ring,
+    body[data-theme="light"] .hero-ring,
+    [data-theme="light"] .hero-ring,
     html[data-theme="light"] .hero-quick,
+    body[data-theme="light"] .hero-quick,
+    [data-theme="light"] .hero-quick,
     html[data-theme="light"] [data-testid="stDataFrame"],
+    body[data-theme="light"] [data-testid="stDataFrame"],
+    [data-theme="light"] [data-testid="stDataFrame"],
     html[data-theme="light"] div.stExpander {
+    body[data-theme="light"] div.stExpander,
+    [data-theme="light"] div.stExpander {
         background: #ffffff !important;
         border-color: #ececf2 !important;
         color: #22232a !important;
     }
 
     html[data-theme="light"] .stTextInput > div > div,
+    body[data-theme="light"] .stTextInput > div > div,
+    [data-theme="light"] .stTextInput > div > div,
     html[data-theme="light"] .stNumberInput > div > div,
+    body[data-theme="light"] .stNumberInput > div > div,
+    [data-theme="light"] .stNumberInput > div > div,
     html[data-theme="light"] .stSelectbox > div > div,
+    body[data-theme="light"] .stSelectbox > div > div,
+    [data-theme="light"] .stSelectbox > div > div,
     html[data-theme="light"] .stDateInput > div > div,
+    body[data-theme="light"] .stDateInput > div > div,
+    [data-theme="light"] .stDateInput > div > div,
     html[data-theme="light"] .stMultiSelect > div > div,
+    body[data-theme="light"] .stMultiSelect > div > div,
+    [data-theme="light"] .stMultiSelect > div > div,
     html[data-theme="light"] .stTextArea > div > div,
+    body[data-theme="light"] .stTextArea > div > div,
+    [data-theme="light"] .stTextArea > div > div,
     html[data-theme="light"] .stSelectbox [data-baseweb="select"] > div,
+    body[data-theme="light"] .stSelectbox [data-baseweb="select"] > div,
+    [data-theme="light"] .stSelectbox [data-baseweb="select"] > div,
     html[data-theme="light"] .stMultiSelect [data-baseweb="select"] > div {
+    body[data-theme="light"] .stMultiSelect [data-baseweb="select"] > div,
+    [data-theme="light"] .stMultiSelect [data-baseweb="select"] > div {
         background: #f3f5f8 !important;
         border-color: #e8e9f0 !important;
     }
