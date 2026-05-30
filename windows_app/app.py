@@ -1270,8 +1270,28 @@ st.markdown(
     .app-top-nav {
         display: flex;
         justify-content: flex-start;
+        align-items: center;
         gap: 10px;
         margin-bottom: 10px;
+    }
+
+    .app-top-ring {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .app-top-ring .ring {
+        --size: 66px;
+    }
+
+    .app-top-ring .ring-value {
+        font-size: 1.25rem;
+    }
+
+    .app-top-ring .ring-label {
+        font-size: 0.62rem;
+        margin-top: 2px;
     }
 
     .app-top-nav-item {
@@ -1883,12 +1903,24 @@ goal_done = max(0.0, float(live_profile["start_weight"]) - float(live_profile["c
 goal_pct = max(0.0, min(100.0, (goal_done / goal_total) * 100.0))
 
 st.markdown(
-    '<div class="app-top-nav">'
-    '<a class="app-top-nav-item" href="?nav=stats" title="Statistik öffnen">'
-    '<span class="app-top-nav-icon">📊</span><span class="app-top-nav-text">Statistik</span></a>'
-    '<a class="app-top-nav-item" href="?nav=profil" title="Profil öffnen">'
-    '<span class="app-top-nav-icon">👤</span><span class="app-top-nav-text">Profil</span></a>'
-    '</div>',
+    f'''
+    <div class="app-top-nav">
+        <a class="app-top-nav-item" href="?nav=stats" title="Statistik öffnen">
+            <span class="app-top-nav-icon">📊</span><span class="app-top-nav-text">Statistik</span>
+        </a>
+        <a class="app-top-nav-item" href="?nav=profil" title="Profil öffnen">
+            <span class="app-top-nav-icon">👤</span><span class="app-top-nav-text">Profil</span>
+        </a>
+        <div class="app-top-ring" title="Punkte übrig">
+            <div class="ring" style="--p:{day_progress_pct:.1f};">
+                <div class="ring-inner">
+                    <div class="ring-value">{today_remaining:.0f}</div>
+                    <div class="ring-label">Übrig</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    ''',
     unsafe_allow_html=True,
 )
 
@@ -1964,23 +1996,6 @@ st.markdown(
 )
 
 with st.sidebar:
-    st.markdown(
-        f"""
-        <div class="sidebar-hero">
-            <p class="sidebar-title">MeinTagebuch</p>
-            <p class="sidebar-sub">Magenta Dashboard mit Fokus auf schnelle Tageserfassung</p>
-            <div class="sidebar-ring">
-                <div class="ring" style="--p:{day_progress_pct:.1f};">
-                    <div class="ring-inner">
-                        <div class="ring-value">{today_remaining:.0f}</div>
-                        <div class="ring-label">Punkte übrig</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
     st.subheader("Kurzstatus")
     st.metric("Tagespunkte", d_points)
     st.metric("Wochenextra", f"{w_remaining:.1f} / {w_extra}")
