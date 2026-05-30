@@ -1338,15 +1338,15 @@ st.markdown(
         justify-content: center;
         gap: 6px;
         text-decoration: none !important;
-        background: var(--app-magenta);
-        color: #ffffff !important;
-        border: 1px solid var(--app-magenta);
+        background: #f1f3f6;
+        color: #111318 !important;
+        border: 1px solid #e1e5ea;
         border-radius: 12px;
         padding: 7px 10px;
         width: 100%;
         font-size: 0.88rem;
         font-weight: 700;
-        box-shadow: 0 8px 16px rgba(161, 13, 109, 0.22);
+        box-shadow: 0 6px 12px rgba(30, 38, 56, 0.08);
         transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
     }
 
@@ -1354,10 +1354,10 @@ st.markdown(
     .app-top-nav-item:active,
     .app-top-nav-item:visited {
         text-decoration: none !important;
-        color: #ffffff !important;
-        background: var(--app-magenta-strong);
+        color: #111318 !important;
+        background: #e9edf2;
         transform: translateY(-1px);
-        box-shadow: 0 10px 20px rgba(161, 13, 109, 0.26);
+        box-shadow: 0 8px 16px rgba(30, 38, 56, 0.12);
     }
 
     .app-top-nav-item .app-top-nav-icon {
@@ -1655,6 +1655,78 @@ st.markdown(
     div.stButton > button:hover {
         background: var(--app-magenta-strong);
         color: #fff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --app-bg: #11141a;
+            --app-card: #171c24;
+            --app-soft: #2b3340;
+            --app-text: #e6ebf5;
+        }
+
+        .stApp {
+            background: linear-gradient(180deg, #0f1319 0%, var(--app-bg) 100%);
+            color: var(--app-text);
+        }
+
+        .dashboard-wrap,
+        [data-testid="stMetric"],
+        .summary-card,
+        .app-top-stars,
+        .hero-ring,
+        .hero-quick,
+        [data-testid="stDataFrame"],
+        div.stExpander {
+            background: #171c24 !important;
+            border-color: #2b3340 !important;
+            color: #e6ebf5 !important;
+        }
+
+        [data-testid="stMetricLabel"],
+        [data-testid="stWidgetLabel"] p,
+        .summary-label,
+        .summary-foot,
+        .dashboard-sub,
+        .ring-label {
+            color: #aeb7c8 !important;
+        }
+
+        [data-testid="stMetricValue"],
+        .summary-value,
+        .dashboard-title,
+        .app-top-stars-value {
+            color: #e6ebf5 !important;
+        }
+
+        .stTextInput > div > div,
+        .stNumberInput > div > div,
+        .stSelectbox > div > div,
+        .stDateInput > div > div,
+        .stMultiSelect > div > div,
+        .stTextArea > div > div {
+            background: #151a21 !important;
+            border-color: #2b3340 !important;
+        }
+
+        .stTextInput input,
+        .stNumberInput input,
+        .stDateInput input,
+        .stTextArea textarea,
+        .stSelectbox [data-baseweb="select"] input,
+        .stMultiSelect [data-baseweb="select"] input {
+            color: #e6ebf5 !important;
+            -webkit-text-fill-color: #e6ebf5 !important;
+        }
+
+        .app-top-nav-item,
+        .app-top-nav-item:hover,
+        .app-top-nav-item:active,
+        .app-top-nav-item:visited {
+            background: #eef1f4 !important;
+            color: #101318 !important;
+            border-color: #d8dee6 !important;
+        }
     }
 
     @media (max-width: 900px) {
