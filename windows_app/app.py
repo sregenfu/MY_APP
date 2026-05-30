@@ -1268,17 +1268,19 @@ st.markdown(
     }
 
     .app-top-nav {
-        display: flex;
-        justify-content: flex-start;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         align-items: center;
         gap: 10px;
+        width: 100%;
         margin-bottom: 10px;
     }
 
     .app-top-ring {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
     }
 
     .app-top-ring .ring {
@@ -1297,12 +1299,14 @@ st.markdown(
     .app-top-stars {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
         background: #ffffff;
         border: 1px solid #ececf2;
         border-radius: 12px;
         padding: 8px 10px;
         min-height: 46px;
+        width: 100%;
     }
 
     .app-top-stars-icon {
@@ -1321,6 +1325,7 @@ st.markdown(
     .app-top-nav-item {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
         text-decoration: none !important;
         background: var(--app-magenta);
@@ -1328,6 +1333,7 @@ st.markdown(
         border: 1px solid var(--app-magenta);
         border-radius: 12px;
         padding: 7px 10px;
+        width: 100%;
         font-size: 0.88rem;
         font-weight: 700;
         box-shadow: 0 8px 16px rgba(161, 13, 109, 0.22);
@@ -1686,8 +1692,9 @@ st.markdown(
 
         .app-bottom-nav {
             display: none !important;
-        }
+            display: inline-flex;
 
+            justify-content: center;
         .app-mid-nav-mobile {
             display: grid;
         }
@@ -1695,6 +1702,7 @@ st.markdown(
         [data-baseweb="popover"],
         [role="dialog"] {
             z-index: 1200 !important;
+            width: 100%;
         }
 
         .app-bottom-nav {
@@ -1703,14 +1711,16 @@ st.markdown(
         }
 
         .app-nav-item {
-            min-height: 44px;
+            display: inline-flex;
             font-size: 0.78rem;
+            justify-content: center;
             border-radius: 12px;
             gap: 6px;
         }
 
         .app-nav-icon {
             font-size: 1.8rem;
+            width: 100%;
         }
     }
 
