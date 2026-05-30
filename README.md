@@ -133,3 +133,20 @@ Diese Repo enthaelt zusaetzlich eine Windows-lauffaehige Version als lokale Web-
 - Lebensmittel-Datenbank mit eigenen Lebensmitteln
 - Tageslog (Mahlzeiten, Punkte, Wasser, Bonus)
 - Gewichtsprotokoll und einfache Statistik
+
+### Online auf iPad nutzen
+
+Fuer eine echte Online-Version auf iPad eignet sich Streamlit Community Cloud.
+
+1. Streamlit Cloud oeffnen: https://share.streamlit.io/
+2. Mit GitHub anmelden
+3. Repository waehlen: `sregenfu/MY_APP`
+4. Branch waehlen: `main`
+5. App file eingeben: `streamlit_app.py`
+6. Deploy starten
+
+Danach erhaeltst du eine feste Web-URL, die direkt auf iPad und iPhone in Safari laeuft.
+
+### Warum diese Datei gebraucht wird
+
+Die Windows-App liegt im Unterordner `windows_app/`. Fuer Streamlit Cloud gibt es deshalb zusaetzlich die Startdatei `streamlit_app.py` im Repo-Hauptordner.
