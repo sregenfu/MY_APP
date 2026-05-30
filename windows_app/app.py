@@ -1130,6 +1130,16 @@ st.markdown(
         font-weight: 700;
     }
 
+    .quick-buttons-anchor + div[data-testid="stHorizontalBlock"] [data-testid="stButton"] > button {
+        width: 100%;
+        min-height: 44px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 10px;
+        font-size: 0.82rem;
+    }
+
     .ring {
         --size: 150px;
         width: var(--size);
@@ -2489,11 +2499,12 @@ if active_page == "mahlz":
         quick_entries = recent_log_entries(store["logs"], limit=5)
         if quick_entries:
             st.write("⏱️ Schnellwahl")
+            st.markdown('<div class="quick-buttons-anchor"></div>', unsafe_allow_html=True)
             q_cols = st.columns(5, gap="small")
             for idx, q in enumerate(quick_entries):
                 q_col = q_cols[idx]
-                unit = "x" if q.get("is_combo", False) else "g"
-                label = f"{q['name']} ({q['amount']:.1f} {unit}, {q['points']:.1f} P)"
+                name = str(q.get("name", "")).strip()
+                label = name if len(name) <= 20 else f"{name[:19]}…"
                 with q_col:
                     if st.button(label, key=f"quick_add_{idx}"):
                         log["entries"].append(
