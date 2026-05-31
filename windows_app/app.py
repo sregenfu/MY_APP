@@ -1537,6 +1537,16 @@ st.markdown(
         line-height: 1;
     }
 
+    .app-top-nav-item.is-active,
+    .app-top-nav-item.is-active:hover,
+    .app-top-nav-item.is-active:active,
+    .app-top-nav-item.is-active:visited {
+        background: var(--app-magenta);
+        border-color: var(--app-magenta);
+        color: #ffffff !important;
+        box-shadow: 0 8px 16px rgba(161, 13, 109, 0.22);
+    }
+
     .app-mid-nav-mobile {
         display: none;
         gap: 7px;
@@ -2320,13 +2330,21 @@ goal_done = max(0.0, float(live_profile["start_weight"]) - float(live_profile["c
 goal_pct = max(0.0, min(100.0, (goal_done / goal_total) * 100.0))
 stars_count = stars_earned(float(live_profile["start_weight"]), float(live_profile["current_weight"]))
 
+_top_nav_raw = st.query_params.get("nav", "mahlz")
+if isinstance(_top_nav_raw, list):
+    top_nav_page = str(_top_nav_raw[0]) if _top_nav_raw else "mahlz"
+else:
+    top_nav_page = str(_top_nav_raw)
+stats_active_class = " is-active" if top_nav_page == "stats" else ""
+profil_active_class = " is-active" if top_nav_page == "profil" else ""
+
 st.markdown(
     f'''
     <div class="app-top-nav">
-        <a class="app-top-nav-item" href="./?nav=stats" target="_self" title="Statistik öffnen">
+        <a class="app-top-nav-item{stats_active_class}" href="./?nav=stats" target="_self" title="Statistik öffnen">
             <span class="app-top-nav-icon">📊</span><span class="app-top-nav-text">Statistik</span>
         </a>
-        <a class="app-top-nav-item" href="./?nav=profil" target="_self" title="Profil öffnen">
+        <a class="app-top-nav-item{profil_active_class}" href="./?nav=profil" target="_self" title="Profil öffnen">
             <span class="app-top-nav-icon">👤</span><span class="app-top-nav-text">Profil</span>
         </a>
         <div class="app-top-ring" title="Punkte übrig">
@@ -2499,14 +2517,6 @@ st.markdown(f'<nav class="app-bottom-nav">{"".join(nav_html_parts)}</nav>', unsa
 active_page = st.session_state["main_nav"]
 
 if active_page == "profil":
-    st.subheader("Profil")
-    if st.button("← Zurück zur App", key="back_from_profile"):
-        st.session_state["main_nav"] = "mahlz"
-        st.session_state["bottom_nav"] = "🍽️ Mahlz."
-        st.session_state["last_bottom_nav"] = "🍽️ Mahlz."
-        st.session_state["header_override"] = False
-        st.rerun()
-
     name = st.text_input("Name", value=profile["name"], key="p_name")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -3433,32 +3443,10 @@ if active_page == "aktiv":
         st.rerun()
 
 if active_page == "stats":
-    st.subheader("Statistik")
-    if st.button("← Zurück zur App", key="back_from_stats"):
-        st.session_state["main_nav"] = "mahlz"
-        st.session_state["bottom_nav"] = "🍽️ Mahlz."
-        st.session_state["last_bottom_nav"] = "🍽️ Mahlz."
-        st.session_state["header_override"] = False
-        st.rerun()
-
     p = store["profile"]
-    dp = daily_points(p)
 
     w_extra_s = weekly_extra_points(p)
     w_start_s = current_weigh_week_start(p)
-    w_used_s = weekly_extra_used(store["logs"], w_start_s, p, date.today())
-    w_left_s = max(0.0, w_extra_s - w_used_s)
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.metric("Tagespunkte", dp)
-    with c2:
-        st.metric("Wochenextra gesamt", w_extra_s)
-        st.caption("Regel: 100 kg = 35, je 10 kg weniger = -5, Minimum 15")
-    with c3:
-        st.metric("Wochenextra verbleibend", f"{w_left_s:.1f}")
-        st.caption(f"Erneuert jeden {p.get('weigh_day', 'Montag')} (Wiegetag)")
-    with c4:
-        st.metric("Sterne", stars_earned(float(p["start_weight"]), float(p["current_weight"])))
 
     progress_total = max(0.0, float(p["start_weight"]) - float(p["goal_weight"]))
     progress_done = max(0.0, float(p["start_weight"]) - float(p["current_weight"]))
