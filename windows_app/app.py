@@ -1,4 +1,5 @@
 ﻿import base64
+import html
 import json
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -2752,18 +2753,55 @@ if active_page == "food":
     st.caption("Die Tabelle zeigt das aktuell ausgewählte Lebensmittel mit heller Darstellung an.")
     if selected_food:
         st.write("Ausgewähltes Lebensmittel")
+        st.markdown(
+            """
+            <style>
+            .food-metric-card {
+                background: #ffffff;
+                border: 1px solid #ececf2;
+                border-radius: 12px;
+                padding: 12px 14px;
+                margin-bottom: 10px;
+                min-height: 92px;
+            }
+            .food-metric-label {
+                font-size: 0.95rem;
+                color: #6b7280;
+                margin-bottom: 8px;
+            }
+            .food-metric-value {
+                font-size: 1.05rem;
+                line-height: 1.2;
+                font-weight: 700;
+                color: #1f2937;
+                word-break: break-word;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        def render_food_metric(label: str, value: str) -> None:
+            safe_label = html.escape(str(label))
+            safe_value = html.escape(str(value))
+            st.markdown(
+                f'<div class="food-metric-card"><div class="food-metric-label">{safe_label}</div>'
+                f'<div class="food-metric-value">{safe_value}</div></div>',
+                unsafe_allow_html=True,
+            )
+
         d1, d2, d3 = st.columns(3)
         with d1:
-            st.metric("Kalorien (kcal)", f"{float(selected_food.get('kcal', 0.0)):.1f}")
-            st.metric("Portion (g)", f"{float(selected_food.get('portion_g', 0.0)):.1f}")
-            st.metric("Punkte", f"{food_points_for_plan(selected_food, store['profile']['plan']):.1f}")
+            render_food_metric("Kalorien (kcal)", f"{float(selected_food.get('kcal', 0.0)):.1f}")
+            render_food_metric("Portion (g)", f"{float(selected_food.get('portion_g', 0.0)):.1f}")
+            render_food_metric("Punkte", f"{food_points_for_plan(selected_food, store['profile']['plan']):.1f}")
         with d2:
-            st.metric("Fett (g)", f"{float(selected_food.get('fat', 0.0)):.1f}")
-            st.metric("Ges. Fett (g)", f"{float(selected_food.get('sat_fat', 0.0)):.1f}")
-            st.metric("Zucker (g)", f"{float(selected_food.get('sugar', 0.0)):.1f}")
+            render_food_metric("Fett (g)", f"{float(selected_food.get('fat', 0.0)):.1f}")
+            render_food_metric("Ges. Fett (g)", f"{float(selected_food.get('sat_fat', 0.0)):.1f}")
+            render_food_metric("Zucker (g)", f"{float(selected_food.get('sugar', 0.0)):.1f}")
         with d3:
-            st.metric("Eiweiß (g)", f"{float(selected_food.get('protein', 0.0)):.1f}")
-            st.metric("Kategorie", selected_food.get("category", "-"))
+            render_food_metric("Eiweiß (g)", f"{float(selected_food.get('protein', 0.0)):.1f}")
+            render_food_metric("Kategorie", selected_food.get("category", "-"))
             zero_flags = []
             if bool(selected_food.get("zr", False)):
                 zero_flags.append("Restriktiv")
@@ -2771,7 +2809,7 @@ if active_page == "food":
                 zero_flags.append("Ausgewogen")
             if bool(selected_food.get("zl", False)):
                 zero_flags.append("Liberal")
-            st.metric("Ohne Punkte in", ", ".join(zero_flags) if zero_flags else "-" )
+            render_food_metric("Ohne Punkte in", ", ".join(zero_flags) if zero_flags else "-")
 
     st.divider()
     st.write("Internet-Import")
