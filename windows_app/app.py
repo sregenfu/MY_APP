@@ -960,7 +960,7 @@ def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
             else:
                 _bg, _col, _border, _fw = "#e91e8c", "white", "2px solid #c2185b", "bold"
             buttons_html.append(
-                f'<a href="?nav={current_nav}&day={_day_str}" style="flex:1;text-align:center;'
+                f'<a href="./?nav={current_nav}&day={_day_str}" target="_self" style="flex:1;text-align:center;'
                 f'text-decoration:none;padding:7px 2px;border-radius:8px;font-size:0.72rem;'
                 f'display:block;background:{_bg};color:{_col};border:{_border};'
                 f'font-weight:{_fw};min-width:0;">{_label}</a>'
@@ -971,7 +971,7 @@ def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
             else:
                 _bg, _col, _border = "#e8f5e9", "#2e7d32", "1px solid #a5d6a7"
             buttons_html.append(
-                f'<a href="?nav={current_nav}&day={_day_str}" style="flex:1;text-align:center;'
+                f'<a href="./?nav={current_nav}&day={_day_str}" target="_self" style="flex:1;text-align:center;'
                 f'text-decoration:none;padding:7px 2px;border-radius:8px;font-size:0.72rem;'
                 f'display:block;background:{_bg};color:{_col};border:{_border};'
                 f'min-width:0;">{_label}</a>'
@@ -2322,10 +2322,10 @@ stars_count = stars_earned(float(live_profile["start_weight"]), float(live_profi
 st.markdown(
     f'''
     <div class="app-top-nav">
-        <a class="app-top-nav-item" href="?nav=stats" title="Statistik öffnen">
+        <a class="app-top-nav-item" href="./?nav=stats" target="_self" title="Statistik öffnen">
             <span class="app-top-nav-icon">📊</span><span class="app-top-nav-text">Statistik</span>
         </a>
-        <a class="app-top-nav-item" href="?nav=profil" title="Profil öffnen">
+        <a class="app-top-nav-item" href="./?nav=profil" target="_self" title="Profil öffnen">
             <span class="app-top-nav-icon">👤</span><span class="app-top-nav-text">Profil</span>
         </a>
         <div class="app-top-ring" title="Punkte übrig">
@@ -2357,7 +2357,7 @@ mobile_nav_html = []
 for item in mobile_nav_items:
     active_class = " is-active" if mobile_nav_page == item["page"] else ""
     mobile_nav_html.append(
-        f'<a class="app-mid-nav-item{active_class}" href="?nav={item["page"]}" title="{item["label"]}">'
+        f'<a class="app-mid-nav-item{active_class}" href="./?nav={item["page"]}" target="_self" title="{item["label"]}">'
         f'<span class="app-mid-nav-icon">{item["icon"]}</span><span class="app-mid-nav-text">{item["label"]}</span></a>'
     )
 
@@ -2488,7 +2488,7 @@ nav_html_parts = []
 for item in nav_items:
     active_class = " is-active" if st.session_state["main_nav"] == item["page"] else ""
     nav_html_parts.append(
-        f'<a class="app-nav-item{active_class}" href="?nav={item["page"]}" '
+        f'<a class="app-nav-item{active_class}" href="./?nav={item["page"]}" target="_self" '
         f'title="{item["tooltip"]}" aria-label="{item["tooltip"]}">'
         f'<span class="app-nav-icon">{item["icon"]}</span><span class="app-nav-text">{item["label"]}</span></a>'
     )
@@ -3731,23 +3731,57 @@ if active_page == "gewicht":
         st.success("Gewicht gespeichert")
 
     if store["weights"]:
-        wdf = pd.DataFrame(store["weights"])
-        wdf = wdf.sort_values("date")
-        wdf["weight"] = wdf["weight"].astype(float)
+        wdf = pd.DataFrame(store["weights"]).copy()
+        wdf["date"] = pd.to_datetime(wdf.get("date"), errors="coerce")
+        wdf["weight"] = pd.to_numeric(wdf.get("weight"), errors="coerce")
+        wdf = wdf.dropna(subset=["date", "weight"]).sort_values("date")
 
-        min_weight = float(wdf["weight"].min())
-        max_weight = float(wdf["weight"].max())
-        spread_kg = max_weight - min_weight
-
-        # Adaptive chart: for small early changes, show gram deltas so progress is visible.
-        if len(wdf) >= 2 and spread_kg < 2.0:
-            baseline = float(wdf["weight"].iloc[0])
-            wdf["delta_g"] = ((wdf["weight"] - baseline) * 1000.0).round().astype(int)
-            st.caption("Feinmodus aktiv: Verlauf in Gramm relativ zum ersten Eintrag")
-            st.line_chart(wdf.set_index("date")["delta_g"])
+        if wdf.empty:
+            st.caption("Keine validen Gewichtsdaten für den Chart vorhanden.")
         else:
-            st.caption("Standardmodus: Verlauf in Kilogramm")
-            st.line_chart(wdf.set_index("date")["weight"])
+            min_weight = float(wdf["weight"].min())
+            max_weight = float(wdf["weight"].max())
+            spread_kg = max_weight - min_weight
+
+            # Adaptive chart: for small early changes, show gram deltas so progress is visible.
+            if len(wdf) >= 2 and spread_kg < 2.0:
+                baseline = float(wdf["weight"].iloc[0])
+                wdf["delta_g"] = ((wdf["weight"] - baseline) * 1000.0).round()
+                chart_df = wdf[pd.to_numeric(wdf["delta_g"], errors="coerce").notna()].copy()
+                chart_df["wert"] = chart_df["delta_g"].astype(float)
+                y_title = "Differenz (g)"
+                st.caption("Feinmodus aktiv: Verlauf in Gramm relativ zum ersten Eintrag")
+            else:
+                chart_df = wdf.copy()
+                chart_df["wert"] = chart_df["weight"].astype(float)
+                y_title = "Gewicht (kg)"
+                st.caption("Standardmodus: Verlauf in Kilogramm")
+
+            chart_df = chart_df[["date", "wert"]].copy()
+            chart_df["date"] = pd.to_datetime(chart_df["date"], errors="coerce")
+            chart_df["wert"] = pd.to_numeric(chart_df["wert"], errors="coerce")
+            chart_df = chart_df.replace([math.inf, -math.inf], pd.NA).dropna(subset=["date", "wert"]).sort_values("date")
+
+            if chart_df.empty:
+                st.caption("Keine validen Datenpunkte für den Chart vorhanden.")
+            else:
+                chart_df = chart_df.sort_values("date")
+                try:
+                    import matplotlib.pyplot as plt
+
+                    fig, ax = plt.subplots(figsize=(8.5, 3.2))
+                    ax.plot(chart_df["date"], chart_df["wert"], marker="o", linewidth=1.8)
+                    ax.set_xlabel("Datum")
+                    ax.set_ylabel(y_title)
+                    ax.grid(alpha=0.25)
+                    fig.autofmt_xdate()
+                    st.pyplot(fig, clear_figure=True)
+                except Exception:
+                    # Fallback ohne Vega/Altair, falls matplotlib im Zielsystem fehlt.
+                    _fallback_df = chart_df.copy()
+                    _fallback_df["Datum"] = _fallback_df["date"].dt.strftime("%d.%m.%Y")
+                    _fallback_df = _fallback_df.rename(columns={"wert": y_title})
+                    st.dataframe(_fallback_df[["Datum", y_title]], width="stretch", hide_index=True)
 
         wtable = pd.DataFrame(store["weights"]).copy()
         wtable = wtable.sort_values("date", ascending=False)
