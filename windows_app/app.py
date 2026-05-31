@@ -2600,8 +2600,14 @@ if active_page == "profil":
             "weigh_day": weigh_day,
             "activity_extra_mode": activity_extra_mode,
         }
+        # daily_pts_snapshot in allen Logs aktualisieren, damit Wochenextra-Berechnung
+        # sofort mit dem neuen Profil (z. B. geänderter Aktivitätsmodus) stimmt.
+        new_daily = daily_points(store["profile"])
+        for _log in store["logs"]:
+            _log["daily_pts_snapshot"] = new_daily
         save_store(store)
-        st.success("Profil gespeichert")
+        st.success("Profil gespeichert – alle Tagespunkte neu berechnet.")
+        st.rerun()
 
     st.divider()
     st.write("Profil sichern und wiederherstellen")
