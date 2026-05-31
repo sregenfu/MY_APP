@@ -2875,10 +2875,11 @@ if active_page == "mahlz":
     log.setdefault("steps", 0)
 
     meals_count = len(log.get("entries", []))
+    _mahlz_day_label = d.strftime('%d.%m.%Y')
 
     c_meals, _ = st.columns([1, 2])
     with c_meals:
-        st.metric("🍽️ Mahlzeiten", meals_count)
+        st.metric(f"🍽️ Mahlzeiten {_mahlz_day_label}", meals_count)
 
     left, right = st.columns([2, 1])
     with left:
@@ -3326,8 +3327,10 @@ if active_page == "aktiv":
             st.success(f"{selected_activity} ({selected_intensity}, {duration} min) hinzugefügt - {calc_points} Punkte")
             st.rerun()
     
+    _act_day_label = act_date.strftime('%d.%m.%Y')
+
     st.divider()
-    st.subheader("🧾 Heute")
+    st.subheader(f"🧾 {_act_day_label}")
     
     if act_log.get("activities"):
         for i, activity in enumerate(act_log["activities"]):
@@ -3344,16 +3347,16 @@ if active_page == "aktiv":
                     save_store(store)
                     st.rerun()
     else:
-        st.info("Noch keine Aktivitäten heute eingetragen.")
+        st.info(f"Keine Aktivitäten für {_act_day_label} eingetragen.")
     
-    st.metric("🏃 Gesamt-Sportpunkte heute", current_bonus)
+    st.metric(f"🏃 Gesamt-Sportpunkte {_act_day_label}", current_bonus)
     
     st.divider()
     st.subheader("👟 Schritte")
     st.caption("Schritte eingeben, Punkte werden automatisch berechnet.")
     
     steps_input = st.number_input(
-        "👟 Heute",
+        f"👟 {_act_day_label}",
         min_value=0,
         value=current_steps,
         step=100,
