@@ -1,6 +1,6 @@
 ﻿import base64
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 import math
 from urllib.parse import quote_plus
@@ -27,12 +27,17 @@ DEFAULT_PROFILE = {
     "weight_goal": "Abnehmen",
     "plan": "Ausgewogen",
     "weigh_day": "Montag",
+    "activity_extra_mode": "Erst Wochenextra und dann Aktivitätspunkte",
 }
 
 ALLOWED_GENDERS = ["Weiblich", "Männlich"]
 ALLOWED_ACTIVITY_LEVELS = ["Kaum Bewegung", "Wenig Bewegung", "Viel Bewegung", "Täglich viel Bewegung"]
 ALLOWED_WEIGHT_GOALS = ["Abnehmen", "Gewicht halten"]
 ALLOWED_PLANS = ["Restriktiv", "Ausgewogen", "Liberal"]
+ALLOWED_ACTIVITY_EXTRA_MODES = [
+    "Erst Wochenextra und dann Aktivitätspunkte",
+    "Aktivitätspunkte nicht benutzen",
+]
 
 
 def sanitize_profile_data(raw: dict) -> dict:
@@ -77,6 +82,13 @@ def sanitize_profile_data(raw: dict) -> dict:
 
     weigh_day = str(raw.get("weigh_day", profile["weigh_day"]))
     profile["weigh_day"] = weigh_day if weigh_day in WEIGH_DAYS else DEFAULT_PROFILE["weigh_day"]
+
+    activity_extra_mode = str(raw.get("activity_extra_mode", profile["activity_extra_mode"]))
+    profile["activity_extra_mode"] = (
+        activity_extra_mode
+        if activity_extra_mode in ALLOWED_ACTIVITY_EXTRA_MODES
+        else DEFAULT_PROFILE["activity_extra_mode"]
+    )
 
     return profile
 
@@ -349,6 +361,11 @@ def load_store() -> dict:
     data.setdefault("measurements", [])
 
     has_changes = False
+
+    sanitized_profile = sanitize_profile_data(data.get("profile", {}))
+    if data.get("profile") != sanitized_profile:
+        data["profile"] = sanitized_profile
+        has_changes = True
 
     if ensure_default_foods_present(data):
         has_changes = True
@@ -624,6 +641,7 @@ def set_profile_form_state(profile_data: dict) -> None:
     st.session_state["p_goal"] = p["weight_goal"]
     st.session_state["p_plan"] = p["plan"]
     st.session_state["p_weigh_day"] = p["weigh_day"]
+    st.session_state["p_activity_extra_mode"] = p["activity_extra_mode"]
 
 
 def sanitize_food_item(raw: dict) -> dict | None:
@@ -817,31 +835,96 @@ def weekly_extra_points(profile: dict) -> int:
     return max(15, min(35, raw))
 
 
+def activity_points_enabled(profile: dict) -> bool:
+    mode = str(profile.get("activity_extra_mode", DEFAULT_PROFILE["activity_extra_mode"]))
+    if mode not in ALLOWED_ACTIVITY_EXTRA_MODES:
+        mode = DEFAULT_PROFILE["activity_extra_mode"]
+    return mode == "Erst Wochenextra und dann Aktivitätspunkte"
+
+
+def log_daily_base_points(log: dict, profile: dict | None = None) -> float:
+    snapshot = float(log.get("daily_pts_snapshot", 0.0) or 0.0)
+    if snapshot > 0:
+        return snapshot
+    if profile is None:
+        return 0.0
+    return float(daily_points(profile))
+
+
 def current_weigh_week_start(profile: dict) -> date:
     """Datum des letzten Wiegetags (Wochenbeginn für Extrapunkte)."""
     weigh_day_name = profile.get("weigh_day", "Montag")
     day_idx = WEIGH_DAYS.index(weigh_day_name)  # 0=Mo, 6=So
     today = date.today()
     days_since = (today.weekday() - day_idx) % 7
-    return today - __import__("datetime").timedelta(days=days_since)
+    return today - timedelta(days=days_since)
 
 
-def weekly_extra_used(logs: list, week_start: date) -> float:
-    """Summe aller Extrapunkte (Tagesüberziehungen) seit dem letzten Wiegetag."""
+def weekly_extra_used(logs: list, week_start: date, profile: dict | None = None, as_of: date | None = None) -> float:
+    """Summe aller verbrauchten Wochenextra-Punkte innerhalb der aktuellen Wiege-Woche."""
+    period_end = as_of or date.today()
     used = 0.0
     for log in logs:
         try:
             log_date = date.fromisoformat(log["date"])
         except (KeyError, ValueError):
             continue
-        if log_date < week_start:
+        if log_date < week_start or log_date > period_end:
             continue
-        day_profile_pts = log.get("daily_pts_snapshot", 0)
+        day_profile_pts = log_daily_base_points(log, profile)
         day_total = sum(float(e["points"]) for e in log.get("entries", []))
         overflow = day_total - day_profile_pts
         if overflow > 0:
             used += overflow
     return math.ceil(used * 10) / 10
+
+
+def day_budget_status(log: dict, profile: dict, week_extra_left_before_day: float) -> dict:
+    """Berechnet Tagesstatus mit Reihenfolge: Tagespunkte -> Wochenextra -> Aktivitätspunkte."""
+    daily_base = log_daily_base_points(log, profile)
+    total_points = sum(float(e.get("points", 0.0)) for e in log.get("entries", []))
+    day_over_base = max(0.0, total_points - daily_base)
+    weekly_used_today = min(day_over_base, max(0.0, week_extra_left_before_day))
+    after_weekly = max(0.0, day_over_base - weekly_used_today)
+
+    available_activity = int(log.get("bonus", 0)) if activity_points_enabled(profile) else 0
+    activity_used_today = min(after_weekly, float(available_activity))
+    deficit_after_all = max(0.0, after_weekly - activity_used_today)
+
+    return {
+        "daily_base": daily_base,
+        "total_points": total_points,
+        "weekly_used_today": weekly_used_today,
+        "activity_available": float(available_activity),
+        "activity_used_today": activity_used_today,
+        "deficit": deficit_after_all,
+        "daily_remaining": max(0.0, daily_base - total_points),
+    }
+
+
+def day_picker_with_nav(label: str, date_key: str) -> date:
+    """Datumsauswahl mit Zurück/Heute/Vorwärts für schnelles Blättern."""
+    if date_key not in st.session_state or not isinstance(st.session_state[date_key], date):
+        st.session_state[date_key] = date.today()
+
+    n1, n2, n3, n4 = st.columns([1, 1, 1, 4])
+    with n1:
+        if st.button("◀", key=f"{date_key}_prev", help="Vortag"):
+            st.session_state[date_key] = st.session_state[date_key] - timedelta(days=1)
+            st.rerun()
+    with n2:
+        if st.button("Heute", key=f"{date_key}_today"):
+            st.session_state[date_key] = date.today()
+            st.rerun()
+    with n3:
+        if st.button("▶", key=f"{date_key}_next", help="Nächster Tag"):
+            st.session_state[date_key] = st.session_state[date_key] + timedelta(days=1)
+            st.rerun()
+    with n4:
+        picked = st.date_input(label, value=st.session_state[date_key], format="DD.MM.YYYY", key=f"{date_key}_picker")
+
+    st.session_state[date_key] = picked
+    return picked
 
 
 def usage_scores_from_logs(logs: list) -> dict[str, float]:
@@ -2150,18 +2233,20 @@ if "p_goal" in st.session_state:
     live_profile["weight_goal"] = st.session_state["p_goal"]
 if "p_weigh_day" in st.session_state:
     live_profile["weigh_day"] = st.session_state["p_weigh_day"]
+if "p_activity_extra_mode" in st.session_state:
+    live_profile["activity_extra_mode"] = st.session_state["p_activity_extra_mode"]
 
 # Permanente Zähler direkt auf der Seite
 d_points = daily_points(live_profile)
 w_extra = weekly_extra_points(live_profile)
 week_start = current_weigh_week_start(live_profile)
-w_used = weekly_extra_used(store["logs"], week_start)
+w_used = weekly_extra_used(store["logs"], week_start, live_profile, date.today())
 w_remaining = max(0.0, w_extra - w_used)
 
 today_key = date.today().isoformat()
 today_log = next((l for l in store["logs"] if l.get("date") == today_key), None)
 today_used = 0.0 if not today_log else sum(float(e["points"]) for e in today_log.get("entries", []))
-today_bonus = 0 if not today_log else int(today_log.get("bonus", 0))
+today_bonus = 0 if (not today_log or not activity_points_enabled(live_profile)) else int(today_log.get("bonus", 0))
 today_target = d_points + today_bonus
 today_remaining = max(0.0, today_target - today_used)
 
@@ -2396,6 +2481,16 @@ if active_page == "profil":
         index=["Kaum Bewegung", "Wenig Bewegung", "Viel Bewegung", "Täglich viel Bewegung"].index(profile["activity_level"]),
         key="p_activity",
     )
+    current_activity_mode = profile.get("activity_extra_mode", DEFAULT_PROFILE["activity_extra_mode"])
+    if current_activity_mode not in ALLOWED_ACTIVITY_EXTRA_MODES:
+        current_activity_mode = DEFAULT_PROFILE["activity_extra_mode"]
+
+    activity_extra_mode = st.selectbox(
+        "Aktivitätspunkte verwenden",
+        ALLOWED_ACTIVITY_EXTRA_MODES,
+        index=ALLOWED_ACTIVITY_EXTRA_MODES.index(current_activity_mode),
+        key="p_activity_extra_mode",
+    )
     goal = st.selectbox("Ziel", ["Abnehmen", "Gewicht halten"],
                         index=0 if profile["weight_goal"] == "Abnehmen" else 1,
                         key="p_goal")
@@ -2440,6 +2535,7 @@ if active_page == "profil":
             "weight_goal": goal,
             "plan": plan,
             "weigh_day": weigh_day,
+            "activity_extra_mode": activity_extra_mode,
         }
         save_store(store)
         st.success("Profil gespeichert")
@@ -2710,7 +2806,7 @@ if active_page == "food":
                 st.success("Lebensmittel gespeichert")
 
 if active_page == "mahlz":
-    d = st.date_input("📅", value=date.today(), format="DD.MM.YYYY")
+    d = day_picker_with_nav("📅", "mahlz_day")
     day = d.isoformat()
     log = todays_log(store["logs"], day)
     log.setdefault("steps", 0)
@@ -2980,17 +3076,31 @@ if active_page == "mahlz":
     entries = log.get("entries", [])
     if entries:
         total = sum(float(e["points"]) for e in entries)
-        daily_target = daily_points(store["profile"]) + int(log.get("bonus", 0))
-        overflow = max(0.0, total - daily_target)
         w_extra_now = weekly_extra_points(store["profile"])
         w_start_now = current_weigh_week_start(store["profile"])
-        w_used_now = weekly_extra_used(store["logs"], w_start_now)
+        used_before_day = weekly_extra_used(store["logs"], w_start_now, store["profile"], d - timedelta(days=1))
+        day_status = day_budget_status(log, store["profile"], max(0.0, w_extra_now - used_before_day))
+        w_used_now = min(w_extra_now, used_before_day + day_status["weekly_used_today"])
         w_left = max(0.0, w_extra_now - w_used_now)
-        if total <= daily_target:
-            st.success(f"Heute: {total:.1f} / {daily_target} Punkte")
+
+        if day_status["deficit"] <= 0 and total <= day_status["daily_base"]:
+            st.success(f"Tag: {total:.1f} / {day_status['daily_base']:.1f} Punkte")
+        elif day_status["deficit"] <= 0:
+            st.warning(
+                f"Tag: {total:.1f} / {day_status['daily_base']:.1f} Punkte - "
+                f"{day_status['weekly_used_today']:.1f} aus Wochenextra"
+            )
+            if day_status["activity_used_today"] > 0:
+                st.info(
+                    f"Aktivitätspunkte genutzt: {day_status['activity_used_today']:.1f} / "
+                    f"{day_status['activity_available']:.1f}"
+                )
         else:
-            st.warning(f"Heute: {total:.1f} / {daily_target} Punkte - {overflow:.1f} aus Wochenextra")
-        st.info(f"Wochenextra noch verfügbar: {w_left:.1f} / {w_extra_now} Punkte (seit {w_start_now.strftime('%d.%m.')})") 
+            st.error(
+                f"Tag: {total:.1f} / {day_status['daily_base']:.1f} Punkte - "
+                f"{day_status['deficit']:.1f} über Tages-/Wochen-/Aktivitätslimit"
+            )
+        st.info(f"Wochenextra noch verfügbar: {w_left:.1f} / {w_extra_now} Punkte (seit {w_start_now.strftime('%d.%m.')})")
 
         st.write("Eintrag bearbeiten oder löschen")
         entry_labels = []
@@ -3086,7 +3196,7 @@ if active_page == "mahlz":
         st.caption("Noch keine Einträge")
 
 if active_page == "aktiv":
-    act_date = st.date_input("📅", value=date.today(), format="DD.MM.YYYY", key="act_date")
+    act_date = day_picker_with_nav("📅", "aktiv_day")
     act_day = act_date.isoformat()
     act_log = todays_log(store["logs"], act_day)
     act_log.setdefault("activities", [])
@@ -3216,7 +3326,7 @@ if active_page == "stats":
 
     w_extra_s = weekly_extra_points(p)
     w_start_s = current_weigh_week_start(p)
-    w_used_s = weekly_extra_used(store["logs"], w_start_s)
+    w_used_s = weekly_extra_used(store["logs"], w_start_s, p, date.today())
     w_left_s = max(0.0, w_extra_s - w_used_s)
     c1, c2, c3, c4 = st.columns(4)
     with c1:
@@ -3340,10 +3450,10 @@ if active_page == "stats":
 if active_page == "masze":
     st.subheader("📏 Körpermaße")
     store.setdefault("measurements", [])
+    m_date = day_picker_with_nav("📅 Datum", "masze_day")
 
     with st.form("add_measurement"):
         st.write("Neue Messung eintragen")
-        m_date = st.date_input("📅 Datum", value=date.today(), format="DD.MM.YYYY", key="masz_date")
 
         _img_path = Path(__file__).parent / "body_silhouette.jpg"
         row_arm_l, row_arm_r = st.columns(2)
@@ -3410,8 +3520,62 @@ if active_page == "masze":
         _mdf_show = [c for c in ["Datum", "Oberarm L", "Oberarm R", "Brust (cm)", "Taille (cm)", "Hüfte (cm)", "Ober. L", "Ober. R", "Notiz"] if c in mdf.columns]
         st.dataframe(mdf[_mdf_show], width="stretch", hide_index=True)
 
+        sorted_measurements = sorted(store["measurements"], key=lambda x: x.get("date", ""), reverse=True)
+        edit_labels = [
+            f"{m.get('date', '')} | B:{float(m.get('brust', 0.0)):.1f} T:{float(m.get('taille', 0.0)):.1f} H:{float(m.get('huefte', 0.0)):.1f}"
+            for m in sorted_measurements
+        ]
+
+        with st.expander("Eintrag bearbeiten"):
+            edit_sel = st.selectbox("Eintrag auswählen", edit_labels, key="masz_edit_sel")
+            edit_idx = edit_labels.index(edit_sel)
+            edit_orig_idx = store["measurements"].index(sorted_measurements[edit_idx])
+            edit_item = store["measurements"][edit_orig_idx]
+            edit_item_date = pd.to_datetime(str(edit_item.get("date", "")), errors="coerce")
+            edit_item_date_value = edit_item_date.date() if not pd.isna(edit_item_date) else date.today()
+
+            with st.form("masz_edit_form"):
+                me_date = st.date_input(
+                    "Datum bearbeiten",
+                    value=edit_item_date_value,
+                    format="DD.MM.YYYY",
+                )
+                me_arm_l, me_arm_r = st.columns(2)
+                with me_arm_l:
+                    me_oberarm_l = st.number_input("Oberarm links (cm)", min_value=0.0, max_value=150.0, value=float(edit_item.get("oberarm_links", 0.0)), step=0.5)
+                with me_arm_r:
+                    me_oberarm_r = st.number_input("Oberarm rechts (cm)", min_value=0.0, max_value=150.0, value=float(edit_item.get("oberarm_rechts", 0.0)), step=0.5)
+                me_brust, me_taille = st.columns(2)
+                with me_brust:
+                    me_brust_val = st.number_input("Brust (cm)", min_value=0.0, max_value=300.0, value=float(edit_item.get("brust", 0.0)), step=0.5)
+                with me_taille:
+                    me_taille_val = st.number_input("Taille (cm)", min_value=0.0, max_value=300.0, value=float(edit_item.get("taille", 0.0)), step=0.5)
+                me_huefte = st.number_input("Hüfte (cm)", min_value=0.0, max_value=300.0, value=float(edit_item.get("huefte", 0.0)), step=0.5)
+                me_thigh_l, me_thigh_r = st.columns(2)
+                with me_thigh_l:
+                    me_ober_l = st.number_input("Oberschenkel links (cm)", min_value=0.0, max_value=150.0, value=float(edit_item.get("oberschenkel_links", 0.0)), step=0.5)
+                with me_thigh_r:
+                    me_ober_r = st.number_input("Oberschenkel rechts (cm)", min_value=0.0, max_value=150.0, value=float(edit_item.get("oberschenkel_rechts", 0.0)), step=0.5)
+                me_note = st.text_input("Notiz", value=str(edit_item.get("note", "")))
+
+                save_masz_edit = st.form_submit_button("Messung aktualisieren")
+                if save_masz_edit:
+                    store["measurements"][edit_orig_idx] = {
+                        "date": me_date.isoformat(),
+                        "oberarm_links": float(me_oberarm_l),
+                        "oberarm_rechts": float(me_oberarm_r),
+                        "brust": float(me_brust_val),
+                        "taille": float(me_taille_val),
+                        "huefte": float(me_huefte),
+                        "oberschenkel_links": float(me_ober_l),
+                        "oberschenkel_rechts": float(me_ober_r),
+                        "note": me_note.strip(),
+                    }
+                    save_store(store)
+                    st.success("Messung aktualisiert")
+                    st.rerun()
+
         with st.expander("Eintrag löschen"):
-            sorted_measurements = sorted(store["measurements"], key=lambda x: x.get("date", ""), reverse=True)
             del_labels = [f"{m.get('date', '')} | B:{m.get('brust', 0):.0f} T:{m.get('taille', 0):.0f} H:{m.get('huefte', 0):.0f}" for m in sorted_measurements]
             del_sel = st.selectbox("Eintrag auswählen", del_labels, key="masz_del_sel")
             if st.button("Ausgewählten Eintrag löschen", key="masz_del_btn"):
@@ -3426,16 +3590,16 @@ if active_page == "masze":
 
 if active_page == "gewicht":
     p = store["profile"]
+    w_date = day_picker_with_nav("📅 Datum", "weight_day")
     
     st.markdown('<div class="weight-input-row">', unsafe_allow_html=True)
     w_col1, w_col2 = st.columns(2, gap="small")
     with w_col1:
-        w_date = st.date_input("📅 Datum", value=date.today(), format="DD.MM.YYYY", key="weight_date")
+        st.caption(f"Ausgewählt: {w_date.strftime('%d.%m.%Y')}")
     with w_col2:
         w_val = st.number_input("⚖️ kg", min_value=30.0, max_value=300.0, value=float(p["current_weight"]), step=0.1, key="weight_value")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.caption(f"Ausgewählt: {w_date.strftime('%d.%m.%Y')}")
     w_note = st.text_input("Notiz", key="weight_note")
 
     if st.button("Gewicht speichern"):
@@ -3495,6 +3659,51 @@ if active_page == "gewicht":
         delete_candidates.sort(key=lambda x: x["sort_date"], reverse=True)
         delete_ids = [item["idx"] for item in delete_candidates]
         delete_label_by_idx = {item["idx"]: item["label"] for item in delete_candidates}
+
+        st.write("Eintrag bearbeiten")
+        selected_edit_idx = st.selectbox(
+            "Zu bearbeitender Gewichtseintrag",
+            delete_ids,
+            format_func=lambda idx: delete_label_by_idx.get(idx, str(idx)),
+            key="weight_edit_pick",
+        )
+        current_weight_entry = store["weights"][selected_edit_idx]
+        current_weight_date = pd.to_datetime(current_weight_entry.get("date", ""), errors="coerce")
+        edit_weight_date = (
+            current_weight_date.date()
+            if not pd.isna(current_weight_date)
+            else date.today()
+        )
+
+        with st.form("weight_edit_form"):
+            ew_c1, ew_c2 = st.columns(2)
+            with ew_c1:
+                edit_date_val = st.date_input("Datum bearbeiten", value=edit_weight_date, format="DD.MM.YYYY")
+            with ew_c2:
+                edit_weight_val = st.number_input(
+                    "Gewicht bearbeiten (kg)",
+                    min_value=30.0,
+                    max_value=300.0,
+                    value=float(current_weight_entry.get("weight", 80.0)),
+                    step=0.1,
+                )
+            edit_note_val = st.text_input("Notiz bearbeiten", value=str(current_weight_entry.get("note", "")))
+            save_weight_edit = st.form_submit_button("Gewichts-Eintrag speichern")
+
+            if save_weight_edit:
+                store["weights"][selected_edit_idx] = {
+                    "date": edit_date_val.isoformat(),
+                    "weight": float(edit_weight_val),
+                    "note": edit_note_val.strip(),
+                }
+                latest_entry = max(store["weights"], key=lambda x: str(x.get("date", "")))
+                try:
+                    store["profile"]["current_weight"] = float(latest_entry.get("weight", store["profile"]["current_weight"]))
+                except (TypeError, ValueError):
+                    pass
+                save_store(store)
+                st.success("Gewichts-Eintrag aktualisiert")
+                st.rerun()
 
         st.write("Eintrag löschen")
         selected_delete_idx = st.selectbox(
