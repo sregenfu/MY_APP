@@ -902,29 +902,85 @@ def day_budget_status(log: dict, profile: dict, week_extra_left_before_day: floa
     }
 
 
-def day_picker_with_nav(label: str, date_key: str) -> date:
-    """Datumsauswahl mit Zurück/Heute/Vorwärts für schnelles Blättern."""
-    if date_key not in st.session_state or not isinstance(st.session_state[date_key], date):
-        st.session_state[date_key] = date.today()
+def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
+    """7-Tage Wochen-Streifen: Vergangene Tage grün, heute magenta, Zukunft grau (nicht klickbar)."""
+    today = date.today()
+    week_start = current_weigh_week_start(profile)
 
-    n1, n2, n3, n4 = st.columns([1, 1, 1, 4])
-    with n1:
-        if st.button("◀", key=f"{date_key}_prev", help="Vortag"):
-            st.session_state[date_key] = st.session_state[date_key] - timedelta(days=1)
-            st.rerun()
-    with n2:
-        if st.button("Heute", key=f"{date_key}_today"):
-            st.session_state[date_key] = date.today()
-            st.rerun()
-    with n3:
-        if st.button("▶", key=f"{date_key}_next", help="Nächster Tag"):
-            st.session_state[date_key] = st.session_state[date_key] + timedelta(days=1)
-            st.rerun()
-    with n4:
-        picked = st.date_input(label, value=st.session_state[date_key], format="DD.MM.YYYY", key=f"{date_key}_picker")
+    # Gewählten Tag aus Query-Param lesen (Link-Navigation)
+    try:
+        raw_day = st.query_params.get("day", today.isoformat())
+        selected = date.fromisoformat(str(raw_day))
+    except (ValueError, AttributeError):
+        selected = today
+    # Clamp: kein zukünftiger Tag, kein Tag vor dieser Woche
+    selected = max(week_start, min(today, selected))
+    st.session_state[date_key] = selected
 
-    st.session_state[date_key] = picked
-    return picked
+    # Wochennummer berechnen
+    all_dates = []
+    for _log in store.get("logs", []):
+        try:
+            all_dates.append(date.fromisoformat(_log["date"]))
+        except (KeyError, ValueError):
+            pass
+    for _w in store.get("weights", []):
+        try:
+            all_dates.append(date.fromisoformat(_w["date"]))
+        except (KeyError, ValueError):
+            pass
+    week_num = 1
+    if all_dates:
+        earliest = min(all_dates)
+        _day_idx = WEIGH_DAYS.index(profile.get("weigh_day", "Montag"))
+        _days_back = (earliest.weekday() - _day_idx) % 7
+        earliest_week_start = earliest - timedelta(days=_days_back)
+        week_num = max(1, (week_start - earliest_week_start).days // 7 + 1)
+
+    days_of_week = [week_start + timedelta(days=i) for i in range(7)]
+    day_abbrevs = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+    current_nav = str(st.query_params.get("nav", "mahlz"))
+
+    buttons_html = []
+    for _day in days_of_week:
+        _abbr = day_abbrevs[_day.weekday()]
+        _day_str = _day.isoformat()
+        _label = f"<strong>{_abbr}</strong><br/><span style='font-size:0.65rem'>{_day.strftime('%d.%m')}</span>"
+        _is_sel = _day == selected
+        _sel_ring = "box-shadow:0 0 0 2.5px #333 inset;" if _is_sel else ""
+
+        if _day > today:
+            buttons_html.append(
+                f'<div style="flex:1;text-align:center;padding:7px 2px;border-radius:8px;'
+                f'font-size:0.72rem;background:#f0f0f0;color:#bbb;border:1px solid #e0e0e0;'
+                f'cursor:not-allowed;min-width:0;">{_label}</div>'
+            )
+        elif _day == today:
+            buttons_html.append(
+                f'<a href="?nav={current_nav}&day={_day_str}" style="flex:1;text-align:center;'
+                f'text-decoration:none;padding:7px 2px;border-radius:8px;font-size:0.72rem;'
+                f'display:block;background:#e91e8c;color:white;border:2px solid #c2185b;'
+                f'font-weight:bold;min-width:0;{_sel_ring}">{_label}</a>'
+            )
+        else:
+            buttons_html.append(
+                f'<a href="?nav={current_nav}&day={_day_str}" style="flex:1;text-align:center;'
+                f'text-decoration:none;padding:7px 2px;border-radius:8px;font-size:0.72rem;'
+                f'display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;'
+                f'min-width:0;{_sel_ring}">{_label}</a>'
+            )
+
+    week_end = week_start + timedelta(days=6)
+    week_label = (
+        f"Woche {week_num} &nbsp;·&nbsp; "
+        f"{week_start.strftime('%d.%m.')} – {week_end.strftime('%d.%m.')}"
+    )
+    st.markdown(
+        f'<div style="font-size:0.7rem;color:#888;margin-bottom:4px;">{week_label}</div>'
+        f'<div style="display:flex;gap:3px;margin-bottom:10px;">{" ".join(buttons_html)}</div>',
+        unsafe_allow_html=True,
+    )
+    return selected
 
 
 def usage_scores_from_logs(logs: list) -> dict[str, float]:
@@ -2806,7 +2862,7 @@ if active_page == "food":
                 st.success("Lebensmittel gespeichert")
 
 if active_page == "mahlz":
-    d = day_picker_with_nav("📅", "mahlz_day")
+    d = weekly_strip_nav("mahlz_day", store["profile"], store)
     day = d.isoformat()
     log = todays_log(store["logs"], day)
     log.setdefault("steps", 0)
@@ -3196,7 +3252,7 @@ if active_page == "mahlz":
         st.caption("Noch keine Einträge")
 
 if active_page == "aktiv":
-    act_date = day_picker_with_nav("📅", "aktiv_day")
+    act_date = weekly_strip_nav("aktiv_day", store["profile"], store)
     act_day = act_date.isoformat()
     act_log = todays_log(store["logs"], act_day)
     act_log.setdefault("activities", [])
@@ -3450,7 +3506,7 @@ if active_page == "stats":
 if active_page == "masze":
     st.subheader("📏 Körpermaße")
     store.setdefault("measurements", [])
-    m_date = day_picker_with_nav("📅 Datum", "masze_day")
+    m_date = weekly_strip_nav("masze_day", store["profile"], store)
 
     with st.form("add_measurement"):
         st.write("Neue Messung eintragen")
@@ -3590,7 +3646,7 @@ if active_page == "masze":
 
 if active_page == "gewicht":
     p = store["profile"]
-    w_date = day_picker_with_nav("📅 Datum", "weight_day")
+    w_date = weekly_strip_nav("weight_day", store["profile"], store)
     
     st.markdown('<div class="weight-input-row">', unsafe_allow_html=True)
     w_col1, w_col2 = st.columns(2, gap="small")
