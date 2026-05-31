@@ -947,7 +947,6 @@ def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
         _day_str = _day.isoformat()
         _label = f"<strong>{_abbr}</strong><br/><span style='font-size:0.65rem'>{_day.strftime('%d.%m')}</span>"
         _is_sel = _day == selected
-        _sel_ring = "box-shadow:0 0 0 2.5px #333 inset;" if _is_sel else ""
 
         if _day > today:
             buttons_html.append(
@@ -956,18 +955,26 @@ def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
                 f'cursor:not-allowed;min-width:0;">{_label}</div>'
             )
         elif _day == today:
+            if _is_sel:
+                _bg, _col, _border, _fw = "#f48fb1", "#880e4f", "2px solid #e91e8c", "bold"
+            else:
+                _bg, _col, _border, _fw = "#e91e8c", "white", "2px solid #c2185b", "bold"
             buttons_html.append(
                 f'<a href="?nav={current_nav}&day={_day_str}" style="flex:1;text-align:center;'
                 f'text-decoration:none;padding:7px 2px;border-radius:8px;font-size:0.72rem;'
-                f'display:block;background:#e91e8c;color:white;border:2px solid #c2185b;'
-                f'font-weight:bold;min-width:0;{_sel_ring}">{_label}</a>'
+                f'display:block;background:{_bg};color:{_col};border:{_border};'
+                f'font-weight:{_fw};min-width:0;">{_label}</a>'
             )
         else:
+            if _is_sel:
+                _bg, _col, _border = "#f8bbd0", "#880e4f", "2px solid #e91e8c"
+            else:
+                _bg, _col, _border = "#e8f5e9", "#2e7d32", "1px solid #a5d6a7"
             buttons_html.append(
                 f'<a href="?nav={current_nav}&day={_day_str}" style="flex:1;text-align:center;'
                 f'text-decoration:none;padding:7px 2px;border-radius:8px;font-size:0.72rem;'
-                f'display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;'
-                f'min-width:0;{_sel_ring}">{_label}</a>'
+                f'display:block;background:{_bg};color:{_col};border:{_border};'
+                f'min-width:0;">{_label}</a>'
             )
 
     week_end = week_start + timedelta(days=6)
