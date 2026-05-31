@@ -3328,7 +3328,10 @@ if active_page == "aktiv":
             if "activities" not in act_log:
                 act_log["activities"] = []
             act_log["activities"].append(activity_entry)
-            act_log["bonus"] = int(sum(float(a.get("points", 0)) for a in act_log["activities"]))
+            act_log["bonus"] = int(
+                sum(float(a.get("points", 0)) for a in act_log["activities"])
+                + steps_to_points(int(act_log.get("steps", 0)))
+            )
             save_store(store)
             st.success(f"{selected_activity} ({selected_intensity}, {duration} min) hinzugefügt - {calc_points} Punkte")
             st.rerun()
@@ -3349,7 +3352,10 @@ if active_page == "aktiv":
             with col3:
                 if st.button("✕", key=f"del_activity_{i}"):
                     act_log["activities"].pop(i)
-                    act_log["bonus"] = int(sum(float(a.get("points", 0)) for a in act_log["activities"]))
+                    act_log["bonus"] = int(
+                        sum(float(a.get("points", 0)) for a in act_log["activities"])
+                        + steps_to_points(int(act_log.get("steps", 0)))
+                    )
                     save_store(store)
                     st.rerun()
     else:
@@ -3380,8 +3386,12 @@ if active_page == "aktiv":
     
     if st.button("Schritte speichern", key="save_steps"):
         act_log["steps"] = int(steps_input)
+        act_log["bonus"] = int(
+            sum(float(a.get("points", 0)) for a in act_log.get("activities", []))
+            + steps_to_points(int(steps_input))
+        )
         save_store(store)
-        st.success("Schritte gespeichert")
+        st.success(f"Schritte gespeichert – {steps_to_points(int(steps_input)):.1f} Punkte")
         st.rerun()
 
 if active_page == "stats":
