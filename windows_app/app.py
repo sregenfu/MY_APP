@@ -1658,14 +1658,6 @@ st.markdown(
         height: auto;
     }
 
-    div[data-testid="element-container"]:has(.measure-desktop-anchor) + div[data-testid="stForm"] {
-        display: block;
-    }
-
-    div[data-testid="element-container"]:has(.measure-mobile-anchor) + div[data-testid="stForm"] {
-        display: none;
-    }
-
     @media (max-width: 900px) {
         .weight-input-row {
             max-width: 100%;
@@ -1673,14 +1665,6 @@ st.markdown(
 
         .measure-figure-desktop {
             display: none !important;
-        }
-
-        div[data-testid="element-container"]:has(.measure-desktop-anchor) + div[data-testid="stForm"] {
-            display: none;
-        }
-
-        div[data-testid="element-container"]:has(.measure-mobile-anchor) + div[data-testid="stForm"] {
-            display: block;
         }
     }
 
@@ -3357,25 +3341,21 @@ if active_page == "masze":
     st.subheader("📏 Körpermaße")
     store.setdefault("measurements", [])
 
-    st.markdown('<div class="measure-desktop-anchor"></div>', unsafe_allow_html=True)
     with st.form("add_measurement"):
         st.write("Neue Messung eintragen")
         m_date = st.date_input("📅 Datum", value=date.today(), format="DD.MM.YYYY", key="masz_date")
 
         _img_path = Path(__file__).parent / "body_silhouette.jpg"
-        col_left, col_img, col_right = st.columns([3, 0.8, 3])
-
-        with col_left:
-            st.markdown('<div style="height:30px"></div>', unsafe_allow_html=True)
+        row_arm_l, row_arm_r = st.columns(2)
+        with row_arm_l:
             m_oberarm_l = st.number_input("💪 Oberarm links (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_oberarm_l")
-            st.markdown('<div style="height:15px"></div>', unsafe_allow_html=True)
-            m_brust = st.number_input("👆 Brust (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_brust")
-            st.markdown('<div style="height:40px"></div>', unsafe_allow_html=True)
-            m_huefte = st.number_input("📐 Hüfte (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_huefte")
-            st.markdown('<div style="height:10px"></div>', unsafe_allow_html=True)
-            m_ober_l = st.number_input("🦵 Oberschenkel links (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_ober_l")
+        with row_arm_r:
+            m_oberarm_r = st.number_input("💪 Oberarm rechts (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_oberarm_r")
 
-        with col_img:
+        row_brust, row_img, row_taille = st.columns([3, 0.8, 3])
+        with row_brust:
+            m_brust = st.number_input("👆 Brust (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_brust")
+        with row_img:
             if _img_path.exists():
                 _img_data = base64.b64encode(_img_path.read_bytes()).decode("ascii")
                 st.markdown(
@@ -3384,13 +3364,15 @@ if active_page == "masze":
                 )
             else:
                 st.info("Bild nicht gefunden")
-
-        with col_right:
-            st.markdown('<div style="height:30px"></div>', unsafe_allow_html=True)
-            m_oberarm_r = st.number_input("💪 Oberarm rechts (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_oberarm_r")
-            st.markdown('<div style="height:55px"></div>', unsafe_allow_html=True)
+        with row_taille:
             m_taille = st.number_input("✂️ Taille (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_taille")
-            st.markdown('<div style="height:55px"></div>', unsafe_allow_html=True)
+
+        m_huefte = st.number_input("📐 Hüfte (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_huefte")
+
+        row_thigh_l, row_thigh_r = st.columns(2)
+        with row_thigh_l:
+            m_ober_l = st.number_input("🦵 Oberschenkel links (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_ober_l")
+        with row_thigh_r:
             m_ober_r = st.number_input("🦵 Oberschenkel rechts (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_ober_r")
 
         m_note = st.text_input("Notiz (optional)", key="masz_note")
@@ -3405,48 +3387,6 @@ if active_page == "masze":
                 "oberschenkel_links": m_ober_l,
                 "oberschenkel_rechts": m_ober_r,
                 "note": m_note.strip(),
-            })
-            save_store(store)
-            st.success("Messung gespeichert")
-            st.rerun()
-
-    st.markdown('<div class="measure-mobile-anchor"></div>', unsafe_allow_html=True)
-    with st.form("add_measurement_mobile"):
-        st.write("Neue Messung eintragen")
-        m_date_mobile = st.date_input("📅 Datum", value=date.today(), format="DD.MM.YYYY", key="masz_date_mobile")
-
-        mo1, mo2 = st.columns(2)
-        with mo1:
-            m_oberarm_l_mobile = st.number_input("💪 Oberarm links (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_oberarm_l_mobile")
-        with mo2:
-            m_oberarm_r_mobile = st.number_input("💪 Oberarm rechts (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_oberarm_r_mobile")
-
-        mb1, mb2 = st.columns(2)
-        with mb1:
-            m_brust_mobile = st.number_input("👆 Brust (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_brust_mobile")
-        with mb2:
-            m_taille_mobile = st.number_input("✂️ Taille (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_taille_mobile")
-
-        m_huefte_mobile = st.number_input("📐 Hüfte (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_huefte_mobile")
-
-        mt1, mt2 = st.columns(2)
-        with mt1:
-            m_ober_l_mobile = st.number_input("🦵 Oberschenkel links (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_ober_l_mobile")
-        with mt2:
-            m_ober_r_mobile = st.number_input("🦵 Oberschenkel rechts (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_ober_r_mobile")
-
-        m_note_mobile = st.text_input("Notiz (optional)", key="masz_note_mobile")
-        if st.form_submit_button("Messung speichern", key="masz_save_mobile"):
-            store["measurements"].append({
-                "date": m_date_mobile.isoformat(),
-                "oberarm_links": m_oberarm_l_mobile,
-                "oberarm_rechts": m_oberarm_r_mobile,
-                "brust": m_brust_mobile,
-                "taille": m_taille_mobile,
-                "huefte": m_huefte_mobile,
-                "oberschenkel_links": m_ober_l_mobile,
-                "oberschenkel_rechts": m_ober_r_mobile,
-                "note": m_note_mobile.strip(),
             })
             save_store(store)
             st.success("Messung gespeichert")
