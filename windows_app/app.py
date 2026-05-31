@@ -3372,7 +3372,7 @@ if active_page == "aktiv":
         min_value=0,
         value=current_steps,
         step=100,
-        key="steps_input"
+        key=f"steps_input_{act_day}"
     )
     
     if steps_input > 0:
