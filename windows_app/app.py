@@ -1658,11 +1658,11 @@ st.markdown(
         height: auto;
     }
 
-    .measure-desktop-anchor + div[data-testid="stForm"] {
+    div[data-testid="element-container"]:has(.measure-desktop-anchor) + div[data-testid="stForm"] {
         display: block;
     }
 
-    .measure-mobile-anchor + div[data-testid="stForm"] {
+    div[data-testid="element-container"]:has(.measure-mobile-anchor) + div[data-testid="stForm"] {
         display: none;
     }
 
@@ -1675,11 +1675,11 @@ st.markdown(
             display: none !important;
         }
 
-        .measure-desktop-anchor + div[data-testid="stForm"] {
+        div[data-testid="element-container"]:has(.measure-desktop-anchor) + div[data-testid="stForm"] {
             display: none;
         }
 
-        .measure-mobile-anchor + div[data-testid="stForm"] {
+        div[data-testid="element-container"]:has(.measure-mobile-anchor) + div[data-testid="stForm"] {
             display: block;
         }
     }
