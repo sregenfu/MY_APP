@@ -3412,28 +3412,64 @@ if active_page == "stats":
     st.progress(pct / 100.0)
     st.caption(f"Ziel-Fortschritt: {pct:.1f}%")
 
+    # ── Aktivitätspunkte-Modus-Anzeige ──────────────────────────────────────
+    _act_mode_enabled = activity_points_enabled(p)
+    _act_mode_label = p.get("activity_extra_mode", DEFAULT_PROFILE["activity_extra_mode"])
+    if _act_mode_enabled:
+        st.success(
+            f"⚡ **Aktivitätspunkte aktiv** · Modus: *{_act_mode_label}*  \n"
+            "Sportpunkte erhöhen dein tägliches Budget (nach Wochenextra)."
+        )
+    else:
+        st.warning(
+            f"🚫 **Aktivitätspunkte deaktiviert** · Modus: *{_act_mode_label}*  \n"
+            "Sportpunkte werden **nicht** zum Tagesbudget addiert. "
+            "Nur Tagespunkte + Wochenextra stehen zur Verfügung. "
+            "Eingetragene Sportpunkte erscheinen weiterhin in der Tabelle, zählen aber nicht."
+        )
+
     st.caption(f"Wochenschnitt Punkte (alle Logs): {week_avg_points(store['logs']):.2f}")
 
-    # Täglicher Punkteverbrauch
+    # ── Täglicher Punkteverbrauch ────────────────────────────────────────────
     st.write("Täglicher Punkteverbrauch")
     if store["logs"]:
         daily_data = []
-        for log in store["logs"]:
-            log_date = log.get("date", "")
-            total_points = sum(float(e.get("points", 0)) for e in log.get("entries", []))
-            daily_bonus = int(log.get("bonus", 0))
-            daily_data.append({
+        for _log in store["logs"]:
+            log_date = _log.get("date", "")
+            total_points = sum(float(e.get("points", 0)) for e in _log.get("entries", []))
+            daily_bonus = int(_log.get("bonus", 0))
+            base_pts = log_daily_base_points(_log, p)
+            _used_before = weekly_extra_used(
+                store["logs"], w_start_s, p,
+                date.fromisoformat(log_date) - timedelta(days=1) if log_date else date.today()
+            )
+            _dstat = day_budget_status(_log, p, max(0.0, w_extra_s - _used_before))
+
+            row = {
                 "date": log_date,
-                "Punkte": f"{total_points:.1f}",
-                "Sportpunkte": daily_bonus,
-                "Schritte": int(log.get("steps", 0)),
-            })
-        
+                "Tagespunkte (Budget)": int(base_pts),
+                "Verbraucht": f"{total_points:.1f}",
+                "Wochenextra genutzt": f"{_dstat['weekly_used_today']:.1f}",
+                "Schritte": int(_log.get("steps", 0)),
+            }
+            if _act_mode_enabled:
+                row["Sportpunkte eingetragen"] = daily_bonus
+                row["Aktivitätspunkte genutzt"] = f"{_dstat['activity_used_today']:.1f}"
+            else:
+                row["Sportpunkte (inaktiv)"] = daily_bonus
+            daily_data.append(row)
+
         daily_df = pd.DataFrame(daily_data).copy()
         daily_df = daily_df.sort_values("date", ascending=False)
         daily_df["date"] = pd.to_datetime(daily_df["date"], errors="coerce").dt.strftime("%d.%m.%Y")
         daily_df = daily_df.rename(columns={"date": "Datum"})
-        st.dataframe(daily_df[["Datum", "Punkte", "Sportpunkte", "Schritte"]], width="stretch", hide_index=True)
+
+        if _act_mode_enabled:
+            _show_cols = ["Datum", "Tagespunkte (Budget)", "Verbraucht", "Wochenextra genutzt", "Sportpunkte eingetragen", "Aktivitätspunkte genutzt", "Schritte"]
+        else:
+            _show_cols = ["Datum", "Tagespunkte (Budget)", "Verbraucht", "Wochenextra genutzt", "Sportpunkte (inaktiv)", "Schritte"]
+        _show_cols = [c for c in _show_cols if c in daily_df.columns]
+        st.dataframe(daily_df[_show_cols], width="stretch", hide_index=True)
     else:
         st.caption("Noch keine Einträge vorhanden.")
 
