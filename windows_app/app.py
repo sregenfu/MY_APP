@@ -232,6 +232,7 @@ def default_store() -> dict:
         "favorites": [],
         "logs": [],
         "weights": [],
+        "measurements": [],
     }
 
 
@@ -344,6 +345,7 @@ def load_store() -> dict:
     data.setdefault("favorites", [])
     data.setdefault("logs", [])
     data.setdefault("weights", [])
+    data.setdefault("measurements", [])
 
     has_changes = False
 
@@ -765,6 +767,23 @@ def sanitize_backup_data(raw: dict) -> dict:
     weights = [sanitize_weight_item(w) for w in raw.get("weights", []) if isinstance(w, dict)]
     data["weights"] = [w for w in weights if w is not None]
 
+    raw_measurements = raw.get("measurements", [])
+    if isinstance(raw_measurements, list):
+        safe_measurements = []
+        for m in raw_measurements:
+            if not isinstance(m, dict):
+                continue
+            entry = {"date": str(m.get("date", ""))[:10]}
+            for field in ["oberarm_links", "oberarm_rechts", "brust", "taille", "huefte", "oberschenkel_links", "oberschenkel_rechts"]:
+                try:
+                    val = float(m.get(field, 0.0))
+                    entry[field] = max(0.0, min(300.0, val))
+                except (TypeError, ValueError):
+                    entry[field] = 0.0
+            entry["note"] = str(m.get("note", ""))[:200]
+            safe_measurements.append(entry)
+        data["measurements"] = safe_measurements
+
     ensure_default_foods_present(data)
     normalize_known_foods(data)
     recalculate_old_log_points(data)
@@ -783,6 +802,7 @@ def build_backup_payload(data: dict) -> dict:
         "favorites": data.get("favorites", []),
         "logs": data.get("logs", []),
         "weights": data.get("weights", []),
+        "measurements": data.get("measurements", []),
     }
     # Tiefenkopie via JSON, damit der Export keine Referenzen auf Live-Daten enthält.
     return json.loads(json.dumps(payload, ensure_ascii=False))
@@ -1268,7 +1288,7 @@ st.markdown(
 
     .app-bottom-nav {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 10px;
         background: #f3f3f7;
         border: 1px solid #ececf2;
@@ -1372,7 +1392,7 @@ st.markdown(
     .app-mid-nav-mobile {
         display: none;
         gap: 7px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         margin: 4px 0 10px;
     }
 
@@ -1905,7 +1925,7 @@ st.markdown(
 
         .app-bottom-nav {
             gap: 6px;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
         }
 
         .app-nav-item {
@@ -2164,6 +2184,7 @@ mobile_nav_items = [
     {"page": "mahlz", "icon": "🍽️", "label": "Mahlz."},
     {"page": "aktiv", "icon": "🏃", "label": "Aktiv."},
     {"page": "gewicht", "icon": "⚖️", "label": "Gewicht"},
+    {"page": "masze", "icon": "📏", "label": "Maße"},
     {"page": "food", "icon": "🍎", "label": "Food"},
 ]
 mobile_nav_html = []
@@ -2260,6 +2281,7 @@ label_to_page = {
     "🍽️ Mahlz.": "mahlz",
     "🏃 Aktiv.": "aktiv",
     "⚖️ Gewicht": "gewicht",
+    "📏 Maße": "masze",
     "🍎 Food": "food",
 }
 page_to_label = {v: k for k, v in label_to_page.items()}
@@ -2292,6 +2314,7 @@ nav_items = [
     {"page": "mahlz", "icon": "🍽️", "label": "Mahlz.", "tooltip": "Mahlzeiten eintragen"},
     {"page": "aktiv", "icon": "🏃", "label": "Aktiv.", "tooltip": "Aktivitäten eintragen"},
     {"page": "gewicht", "icon": "⚖️", "label": "Gewicht", "tooltip": "Gewicht eintragen"},
+    {"page": "masze", "icon": "📏", "label": "Maße", "tooltip": "Körpermaße eintragen"},
     {"page": "food", "icon": "🍎", "label": "Food", "tooltip": "Neue Lebensmittel oder Rezepte eingeben"},
 ]
 
@@ -3275,6 +3298,112 @@ if active_page == "stats":
         st.dataframe(wtable[["Datum", "Gewicht (kg)", "Notiz"]], width="stretch", hide_index=True)
     else:
         st.caption("Noch keine Gewichtseinträge vorhanden.")
+
+    st.write("Körpermaße Verlauf")
+    store.setdefault("measurements", [])
+    if store["measurements"]:
+        mstat = pd.DataFrame(store["measurements"]).copy()
+        mstat = mstat.sort_values("date", ascending=False)
+        mstat["date"] = pd.to_datetime(mstat["date"], errors="coerce").dt.strftime("%d.%m.%Y")
+        _masz_cols = ["oberarm_links", "oberarm_rechts", "brust", "taille", "huefte", "oberschenkel_links", "oberschenkel_rechts"]
+        for col in _masz_cols:
+            if col in mstat.columns:
+                mstat[col] = mstat[col].apply(lambda x: f"{float(x):.1f}" if float(x) > 0 else "-")
+        mstat = mstat.rename(columns={
+            "date": "Datum", "oberarm_links": "Oberarm L", "oberarm_rechts": "Oberarm R",
+            "brust": "Brust (cm)", "taille": "Taille (cm)",
+            "huefte": "Hüfte (cm)", "oberschenkel_links": "Ober. L", "oberschenkel_rechts": "Ober. R", "note": "Notiz"
+        })
+        _stat_show = [c for c in ["Datum", "Oberarm L", "Oberarm R", "Brust (cm)", "Taille (cm)", "Hüfte (cm)", "Ober. L", "Ober. R", "Notiz"] if c in mstat.columns]
+        st.dataframe(mstat[_stat_show], width="stretch", hide_index=True)
+    else:
+        st.caption("Noch keine Körpermaße eingetragen.")
+
+if active_page == "masze":
+    st.subheader("📏 Körpermaße")
+    store.setdefault("measurements", [])
+
+    with st.form("add_measurement"):
+        st.write("Neue Messung eintragen")
+        m_date = st.date_input("📅 Datum", value=date.today(), format="DD.MM.YYYY", key="masz_date")
+
+        _img_path = Path(__file__).parent / "body_silhouette.jpg"
+        col_left, col_img, col_right = st.columns([3, 0.8, 3])
+
+        with col_left:
+            st.markdown('<div style="height:30px"></div>', unsafe_allow_html=True)
+            m_oberarm_l = st.number_input("💪 Oberarm links (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_oberarm_l")
+            st.markdown('<div style="height:15px"></div>', unsafe_allow_html=True)
+            m_brust = st.number_input("👆 Brust (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_brust")
+            st.markdown('<div style="height:40px"></div>', unsafe_allow_html=True)
+            m_huefte = st.number_input("📐 Hüfte (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_huefte")
+            st.markdown('<div style="height:10px"></div>', unsafe_allow_html=True)
+            m_ober_l = st.number_input("🦵 Oberschenkel links (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_ober_l")
+
+        with col_img:
+            if _img_path.exists():
+                _img_left, _img_center, _img_right = st.columns([1, 4, 1])
+                with _img_center:
+                    st.image(str(_img_path), width=120)
+            else:
+                st.info("Bild nicht gefunden")
+
+        with col_right:
+            st.markdown('<div style="height:30px"></div>', unsafe_allow_html=True)
+            m_oberarm_r = st.number_input("💪 Oberarm rechts (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_oberarm_r")
+            st.markdown('<div style="height:55px"></div>', unsafe_allow_html=True)
+            m_taille = st.number_input("✂️ Taille (cm)", min_value=0.0, max_value=300.0, value=0.0, step=0.5, key="masz_taille")
+            st.markdown('<div style="height:55px"></div>', unsafe_allow_html=True)
+            m_ober_r = st.number_input("🦵 Oberschenkel rechts (cm)", min_value=0.0, max_value=150.0, value=0.0, step=0.5, key="masz_ober_r")
+
+        m_note = st.text_input("Notiz (optional)", key="masz_note")
+        if st.form_submit_button("Messung speichern"):
+            store["measurements"].append({
+                "date": m_date.isoformat(),
+                "oberarm_links": m_oberarm_l,
+                "oberarm_rechts": m_oberarm_r,
+                "brust": m_brust,
+                "taille": m_taille,
+                "huefte": m_huefte,
+                "oberschenkel_links": m_ober_l,
+                "oberschenkel_rechts": m_ober_r,
+                "note": m_note.strip(),
+            })
+            save_store(store)
+            st.success("Messung gespeichert")
+            st.rerun()
+
+    st.divider()
+    st.write("Verlauf")
+    if store["measurements"]:
+        mdf = pd.DataFrame(store["measurements"]).copy()
+        mdf = mdf.sort_values("date", ascending=False)
+        mdf["date"] = pd.to_datetime(mdf["date"], errors="coerce").dt.strftime("%d.%m.%Y")
+        _all_masz_cols = ["oberarm_links", "oberarm_rechts", "brust", "taille", "huefte", "oberschenkel_links", "oberschenkel_rechts"]
+        for col in _all_masz_cols:
+            if col in mdf.columns:
+                mdf[col] = mdf[col].apply(lambda x: f"{float(x):.1f}" if float(x) > 0 else "-")
+        mdf = mdf.rename(columns={
+            "date": "Datum", "oberarm_links": "Oberarm L", "oberarm_rechts": "Oberarm R",
+            "brust": "Brust (cm)", "taille": "Taille (cm)",
+            "huefte": "Hüfte (cm)", "oberschenkel_links": "Ober. L", "oberschenkel_rechts": "Ober. R", "note": "Notiz"
+        })
+        _mdf_show = [c for c in ["Datum", "Oberarm L", "Oberarm R", "Brust (cm)", "Taille (cm)", "Hüfte (cm)", "Ober. L", "Ober. R", "Notiz"] if c in mdf.columns]
+        st.dataframe(mdf[_mdf_show], width="stretch", hide_index=True)
+
+        with st.expander("Eintrag löschen"):
+            sorted_measurements = sorted(store["measurements"], key=lambda x: x.get("date", ""), reverse=True)
+            del_labels = [f"{m.get('date', '')} | B:{m.get('brust', 0):.0f} T:{m.get('taille', 0):.0f} H:{m.get('huefte', 0):.0f}" for m in sorted_measurements]
+            del_sel = st.selectbox("Eintrag auswählen", del_labels, key="masz_del_sel")
+            if st.button("Ausgewählten Eintrag löschen", key="masz_del_btn"):
+                del_idx = del_labels.index(del_sel)
+                orig_idx = store["measurements"].index(sorted_measurements[del_idx])
+                store["measurements"].pop(orig_idx)
+                save_store(store)
+                st.success("Eintrag gelöscht")
+                st.rerun()
+    else:
+        st.caption("Noch keine Messungen vorhanden.")
 
 if active_page == "gewicht":
     p = store["profile"]
