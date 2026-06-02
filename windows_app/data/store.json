@@ -1,17 +1,4 @@
 {
-  "profile": {
-    "name": "Susanne",
-    "gender": "Weiblich",
-    "birth_date": "1971-08-20",
-    "height": 162.0,
-    "start_weight": 100.0,
-    "current_weight": 100.0,
-    "goal_weight": 60.0,
-    "activity_level": "Wenig Bewegung",
-    "weight_goal": "Abnehmen",
-    "plan": "Ausgewogen",
-    "weigh_day": "Freitag"
-  },
   "foods": [
     {
       "name": "Apfel",
@@ -10036,6 +10023,20 @@
       "zr": false,
       "zb": false,
       "zl": false
+    },
+    {
+      "name": "Erdbeermarmelade (Aldi)",
+      "category": "Internet-Import",
+      "portion_g": 100.0,
+      "kcal": 169.0,
+      "fat": 0.3,
+      "sat_fat": 0.0,
+      "sugar": 39.6,
+      "protein": 0.5,
+      "points": 10.0,
+      "zr": false,
+      "zb": false,
+      "zl": false
     }
   ],
   "logs": [
@@ -10118,7 +10119,7 @@
       ],
       "water_l": 0.0,
       "bonus": 11,
-      "steps": 6500,
+      "steps": 11000,
       "activities": [
         {
           "name": "Fitnesstraining",
@@ -10136,9 +10137,100 @@
         }
       ],
       "daily_pts_snapshot": 23
+    },
+    {
+      "date": "2026-05-31",
+      "entries": [
+        {
+          "name": "Roggenbrötchen",
+          "amount": 50.0,
+          "meal": "Frühstück",
+          "points": 3.7,
+          "time": "2026-05-31T12:07:11",
+          "is_combo": false
+        },
+        {
+          "name": "Frischkäse Natur (30 % Fett",
+          "amount": 50.0,
+          "meal": "Frühstück",
+          "points": 7.6,
+          "time": "2026-05-31T12:08:32"
+        },
+        {
+          "name": "Kaffee mit Kondensmilch",
+          "amount": 1.0,
+          "meal": "Frühstück",
+          "points": 2.3,
+          "time": "2026-05-31T12:12:38",
+          "is_combo": true
+        },
+        {
+          "name": "Erdbeermarmelade (Aldi)",
+          "amount": 40.0,
+          "meal": "Frühstück",
+          "points": 4.0,
+          "time": "2026-05-31T12:16:37"
+        }
+      ],
+      "water_l": 0.0,
+      "bonus": 9,
+      "steps": 0,
+      "daily_pts_snapshot": 23,
+      "activities": [
+        {
+          "name": "Fahrradfahren",
+          "intensity": "moderat",
+          "duration": 30,
+          "points": 9.0,
+          "weight_at_entry": 100.0
+        }
+      ]
     }
   ],
-  "weights": [],
-  "combos": [],
-  "favorites": []
+  "weights": [
+    {
+      "date": "2026-05-31",
+      "weight": 100.0,
+      "note": ""
+    },
+    {
+      "date": "2026-05-30",
+      "weight": 100.7,
+      "note": ""
+    },
+    {
+      "date": "2026-05-29",
+      "weight": 101.0,
+      "note": ""
+    }
+  ],
+  "combos": [
+    {
+      "name": "Kaffee mit Kondensmilch",
+      "items": [
+        {
+          "food_name": "Kaffee schwarz",
+          "amount_g": 100.0
+        },
+        {
+          "food_name": "Kondensmilch",
+          "amount_g": 50.0
+        }
+      ]
+    }
+  ],
+  "favorites": [],
+  "measurements": [
+    {
+      "date": "2026-05-31",
+      "oberarm_links": 90.0,
+      "oberarm_rechts": 90.0,
+      "brust": 120.0,
+      "taille": 100.0,
+      "huefte": 120.0,
+      "oberschenkel_links": 100.0,
+      "oberschenkel_rechts": 100.0,
+      "note": "Start"
+    }
+  ]
 }

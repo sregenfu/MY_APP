@@ -13,6 +13,7 @@ import streamlit as st
 APP_TITLE = "MeinTagebuch"
 DATA_DIR = Path(__file__).parent / "data"
 DATA_FILE = DATA_DIR / "store.json"
+PROFILE_FILE = DATA_DIR / "profile.json"
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -347,13 +348,17 @@ def normalize_known_foods(data: dict) -> bool:
 def load_store() -> dict:
     if not DATA_FILE.exists():
         data = default_store()
+        profile, _ = load_profile()
+        data["profile"] = profile
         save_store(data)
         return data
     with DATA_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
+    # Legacy-Daten: Profil war frueher in store.json enthalten.
+    legacy_profile = data.pop("profile", None)
+
     # Vorwärtskompatibel: fehlende Felder in älteren store.json ergänzen
-    data.setdefault("profile", DEFAULT_PROFILE.copy())
     data.setdefault("foods", list(DEFAULT_FOODS))
     data.setdefault("combos", [])
     data.setdefault("favorites", [])
@@ -363,9 +368,9 @@ def load_store() -> dict:
 
     has_changes = False
 
-    sanitized_profile = sanitize_profile_data(data.get("profile", {}))
-    if data.get("profile") != sanitized_profile:
-        data["profile"] = sanitized_profile
+    profile, profile_changed = load_profile(legacy_profile)
+    data["profile"] = profile
+    if legacy_profile is not None or profile_changed:
         has_changes = True
 
     if ensure_default_foods_present(data):
@@ -384,8 +389,40 @@ def load_store() -> dict:
 
 
 def save_store(data: dict) -> None:
+    store_payload = dict(data)
+    profile_payload = sanitize_profile_data(store_payload.pop("profile", DEFAULT_PROFILE.copy()))
     with DATA_FILE.open("w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(store_payload, f, ensure_ascii=False, indent=2)
+    save_profile(profile_payload)
+
+
+def load_profile(initial: dict | None = None) -> tuple[dict, bool]:
+    changed = False
+
+    if PROFILE_FILE.exists():
+        try:
+            with PROFILE_FILE.open("r", encoding="utf-8") as f:
+                raw = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            raw = initial if isinstance(initial, dict) else DEFAULT_PROFILE.copy()
+            changed = True
+    else:
+        raw = initial if isinstance(initial, dict) else DEFAULT_PROFILE.copy()
+        changed = True
+
+    profile = sanitize_profile_data(raw)
+    if raw != profile:
+        changed = True
+
+    if changed:
+        save_profile(profile)
+
+    return profile, changed
+
+
+def save_profile(profile: dict) -> None:
+    with PROFILE_FILE.open("w", encoding="utf-8") as f:
+        json.dump(profile, f, ensure_ascii=False, indent=2)
 
 
 def age_from_birthdate(birth_date: date) -> int:
