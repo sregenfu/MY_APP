@@ -493,79 +493,107 @@ def _to_float(value, default: float = 0.0) -> float:
 
 
 @st.cache_data(show_spinner=False, ttl=3600)
-def search_foods_online(query: str, page_size: int = 12) -> list[dict]:
+def search_foods_online(query: str, page_size: int = 12) -> tuple[list[dict], str | None]:
     q = str(query or "").strip()
     if not q:
-        return []
+        return [], None
 
     size = max(1, min(int(page_size), 30))
-    url = (
-        "https://world.openfoodfacts.org/cgi/search.pl"
-        f"?search_terms={quote_plus(q)}"
-        "&search_simple=1&action=process&json=1"
-        f"&page_size={size}"
-        "&fields=product_name,brands,categories,nutriments"
-    )
+    urls = [
+        (
+            "https://world.openfoodfacts.org/cgi/search.pl"
+            f"?search_terms={quote_plus(q)}"
+            "&search_simple=1&action=process&json=1"
+            f"&page_size={size}"
+            "&fields=product_name,brands,categories,nutriments"
+        ),
+        (
+            "https://de.openfoodfacts.org/cgi/search.pl"
+            f"?search_terms={quote_plus(q)}"
+            "&search_simple=1&action=process&json=1"
+            f"&page_size={size}"
+            "&fields=product_name,brands,categories,nutriments"
+        ),
+        (
+            "https://world.openfoodfacts.org/cgi/search.pl"
+            f"?search_terms={quote_plus(q)}"
+            "&search_simple=1&action=process&json=1"
+            f"&page_size={size}"
+        ),
+    ]
 
-    try:
-        req = Request(url, headers={"User-Agent": "MeinTagebuch/1.0"})
-        with urlopen(req, timeout=8) as response:
-            payload = json.loads(response.read().decode("utf-8", errors="ignore"))
-    except Exception:
-        return []
+    headers = {
+        "User-Agent": "MeinTagebuch/1.2 (kontakt: support@meintagebuch.app)",
+        "Accept": "application/json",
+        "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
+    }
 
-    out = []
-    seen = set()
-    for product in payload.get("products", []):
-        if not isinstance(product, dict):
-            continue
+    def _products_to_foods(payload: dict) -> list[dict]:
+        out = []
+        seen = set()
+        for product in payload.get("products", []):
+            if not isinstance(product, dict):
+                continue
 
-        name = str(product.get("product_name") or "").strip()
-        if not name:
-            continue
+            name = str(product.get("product_name") or "").strip()
+            if not name:
+                continue
 
-        nutriments = product.get("nutriments") if isinstance(product.get("nutriments"), dict) else {}
+            nutriments = product.get("nutriments") if isinstance(product.get("nutriments"), dict) else {}
 
-        kcal = _to_float(nutriments.get("energy-kcal_100g"), 0.0)
-        if kcal <= 0.0:
-            kcal_from_kj = _to_float(nutriments.get("energy_100g"), 0.0)
-            if kcal_from_kj > 0.0:
-                kcal = kcal_from_kj / 4.184
+            kcal = _to_float(nutriments.get("energy-kcal_100g"), 0.0)
+            if kcal <= 0.0:
+                kcal_from_kj = _to_float(nutriments.get("energy_100g"), 0.0)
+                if kcal_from_kj > 0.0:
+                    kcal = kcal_from_kj / 4.184
 
-        fat = _to_float(nutriments.get("fat_100g"), 0.0)
-        sat_fat = _to_float(nutriments.get("saturated-fat_100g"), fat * 0.4)
-        sugar = _to_float(nutriments.get("sugars_100g"), 0.0)
-        protein = _to_float(nutriments.get("proteins_100g"), 0.0)
+            fat = _to_float(nutriments.get("fat_100g"), 0.0)
+            sat_fat = _to_float(nutriments.get("saturated-fat_100g"), fat * 0.4)
+            sugar = _to_float(nutriments.get("sugars_100g"), 0.0)
+            protein = _to_float(nutriments.get("proteins_100g"), 0.0)
 
-        brand = str(product.get("brands") or "").split(",")[0].strip()
-        category = str(product.get("categories") or "").split(",")[0].strip() or "Internet-Import"
-        display_name = f"{name} ({brand})" if brand else name
-        key = food_name_key(display_name)
-        if key in seen:
-            continue
-        seen.add(key)
+            brand = str(product.get("brands") or "").split(",")[0].strip()
+            category = str(product.get("categories") or "").split(",")[0].strip() or "Internet-Import"
+            display_name = f"{name} ({brand})" if brand else name
+            key = food_name_key(display_name)
+            if key in seen:
+                continue
+            seen.add(key)
 
-        out.append(
-            {
-                "name": display_name,
-                "category": category,
-                "portion_g": 100.0,
-                "kcal": max(0.0, kcal),
-                "fat": max(0.0, fat),
-                "sat_fat": max(0.0, sat_fat),
-                "sugar": max(0.0, sugar),
-                "protein": max(0.0, protein),
-                "points": calc_food_points(kcal, fat, sat_fat, sugar, protein),
-                "zr": False,
-                "zb": False,
-                "zl": False,
-            }
-        )
+            out.append(
+                {
+                    "name": display_name,
+                    "category": category,
+                    "portion_g": 100.0,
+                    "kcal": max(0.0, kcal),
+                    "fat": max(0.0, fat),
+                    "sat_fat": max(0.0, sat_fat),
+                    "sugar": max(0.0, sugar),
+                    "protein": max(0.0, protein),
+                    "points": calc_food_points(kcal, fat, sat_fat, sugar, protein),
+                    "zr": False,
+                    "zb": False,
+                    "zl": False,
+                }
+            )
 
-        if len(out) >= size:
-            break
+            if len(out) >= size:
+                break
+        return out
 
-    return out
+    last_error = None
+    for url in urls:
+        try:
+            req = Request(url, headers=headers)
+            with urlopen(req, timeout=12) as response:
+                payload = json.loads(response.read().decode("utf-8", errors="ignore"))
+            foods = _products_to_foods(payload)
+            if foods:
+                return foods, None
+        except Exception as ex:
+            last_error = f"{type(ex).__name__}: {ex}"
+
+    return [], last_error
 
 
 def food_points_for_plan(food: dict, plan: str) -> float:
@@ -2870,14 +2898,20 @@ if active_page == "food":
 
     if "food_online_results" not in st.session_state:
         st.session_state["food_online_results"] = []
+    if "food_online_error" not in st.session_state:
+        st.session_state["food_online_error"] = None
 
     if do_online_search:
         if not online_query.strip():
             st.warning("Bitte Suchbegriff eingeben.")
         else:
-            st.session_state["food_online_results"] = search_foods_online(online_query, page_size=12)
+            results, err = search_foods_online(online_query, page_size=12)
+            st.session_state["food_online_results"] = results
+            st.session_state["food_online_error"] = err
             if not st.session_state["food_online_results"]:
                 st.info("Keine Treffer oder aktuell keine Internetverbindung.")
+                if err:
+                    st.caption(f"Technischer Hinweis: {err}")
 
     online_results = st.session_state.get("food_online_results", [])
     if online_results:
