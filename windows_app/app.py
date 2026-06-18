@@ -23,6 +23,7 @@ DEFAULT_PROFILE = {
     "birth_date": "1996-01-01",
     "height": 170.0,
     "start_weight": 80.0,
+    "start_date": date.today().isoformat(),
     "current_weight": 80.0,
     "goal_weight": 70.0,
     "activity_level": "Wenig Bewegung",
@@ -60,6 +61,13 @@ def sanitize_profile_data(raw: dict) -> dict:
         profile["birth_date"] = birth_date
     except ValueError:
         profile["birth_date"] = DEFAULT_PROFILE["birth_date"]
+
+    start_date = str(raw.get("start_date", profile.get("start_date", DEFAULT_PROFILE.get("start_date", date.today().isoformat()))))
+    try:
+        datetime.strptime(start_date, "%Y-%m-%d")
+        profile["start_date"] = start_date
+    except ValueError:
+        profile["start_date"] = date.today().isoformat()
 
     def _bounded_float(value, default_value: float, min_value: float, max_value: float) -> float:
         try:
@@ -206,34 +214,34 @@ DEFAULT_FOODS_HARDCODED = [
 DEFAULT_FOODS = load_foods_from_file()
 
 SUPPLEMENTAL_FOODS = [
-    {"name": "Tomate", "category": "Gemuese", "portion_g": 100.0, "kcal": 18.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 2.6, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Tomaten", "category": "Gemuese", "portion_g": 100.0, "kcal": 18.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 2.6, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Karotte", "category": "Gemuese", "portion_g": 100.0, "kcal": 41.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 4.7, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Karotten", "category": "Gemuese", "portion_g": 100.0, "kcal": 41.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 4.7, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Zucchini", "category": "Gemuese", "portion_g": 100.0, "kcal": 17.0, "fat": 0.3, "sat_fat": 0.0, "sugar": 2.5, "protein": 1.2, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Paprika", "category": "Gemuese", "portion_g": 100.0, "kcal": 31.0, "fat": 0.3, "sat_fat": 0.0, "sugar": 4.2, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Paprika rot", "category": "Gemuese", "portion_g": 100.0, "kcal": 31.0, "fat": 0.3, "sat_fat": 0.0, "sugar": 4.2, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Paprika gelb", "category": "Gemuese", "portion_g": 100.0, "kcal": 28.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 3.8, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Paprika gruen", "category": "Gemuese", "portion_g": 100.0, "kcal": 24.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 2.4, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Gurke", "category": "Gemuese", "portion_g": 100.0, "kcal": 12.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 1.7, "protein": 0.6, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Salat", "category": "Gemuese", "portion_g": 100.0, "kcal": 15.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 1.5, "protein": 1.4, "points": 0.0, "zr": True, "zb": True, "zl": True},
-    {"name": "Salate", "category": "Gemuese", "portion_g": 100.0, "kcal": 15.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 1.5, "protein": 1.4, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Tomate", "category": "Gemüse", "portion_g": 100.0, "kcal": 18.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 2.6, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Tomaten", "category": "Gemüse", "portion_g": 100.0, "kcal": 18.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 2.6, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Karotte", "category": "Gemüse", "portion_g": 100.0, "kcal": 41.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 4.7, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Karotten", "category": "Gemüse", "portion_g": 100.0, "kcal": 41.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 4.7, "protein": 0.9, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Zucchini", "category": "Gemüse", "portion_g": 100.0, "kcal": 17.0, "fat": 0.3, "sat_fat": 0.0, "sugar": 2.5, "protein": 1.2, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Paprika", "category": "Gemüse", "portion_g": 100.0, "kcal": 31.0, "fat": 0.3, "sat_fat": 0.0, "sugar": 4.2, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Paprika rot", "category": "Gemüse", "portion_g": 100.0, "kcal": 31.0, "fat": 0.3, "sat_fat": 0.0, "sugar": 4.2, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Paprika gelb", "category": "Gemüse", "portion_g": 100.0, "kcal": 28.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 3.8, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Paprika grün", "category": "Gemüse", "portion_g": 100.0, "kcal": 24.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 2.4, "protein": 1.0, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Gurke", "category": "Gemüse", "portion_g": 100.0, "kcal": 12.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 1.7, "protein": 0.6, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Salat", "category": "Gemüse", "portion_g": 100.0, "kcal": 15.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 1.5, "protein": 1.4, "points": 0.0, "zr": True, "zb": True, "zl": True},
+    {"name": "Salate", "category": "Gemüse", "portion_g": 100.0, "kcal": 15.0, "fat": 0.2, "sat_fat": 0.0, "sugar": 1.5, "protein": 1.4, "points": 0.0, "zr": True, "zb": True, "zl": True},
     {"name": "Nudeln gekocht", "category": "Getreide", "portion_g": 150.0, "kcal": 210.0, "fat": 1.2, "sat_fat": 0.2, "sugar": 2.0, "protein": 7.0, "points": 3.0, "zr": False, "zb": False, "zl": False},
     {"name": "Nudeln", "category": "Getreide", "portion_g": 150.0, "kcal": 210.0, "fat": 1.2, "sat_fat": 0.2, "sugar": 2.0, "protein": 7.0, "points": 3.0, "zr": False, "zb": False, "zl": False},
     {"name": "Reis gekocht", "category": "Getreide", "portion_g": 150.0, "kcal": 195.0, "fat": 0.4, "sat_fat": 0.1, "sugar": 0.1, "protein": 3.5, "points": 3.0, "zr": False, "zb": False, "zl": False},
     {"name": "Reis", "category": "Getreide", "portion_g": 150.0, "kcal": 195.0, "fat": 0.4, "sat_fat": 0.1, "sugar": 0.1, "protein": 3.5, "points": 3.0, "zr": False, "zb": False, "zl": False},
     {"name": "Milchkaffee", "category": "Milch", "portion_g": 200.0, "kcal": 45.0, "fat": 1.5, "sat_fat": 1.0, "sugar": 4.8, "protein": 3.0, "points": 1.0, "zr": False, "zb": False, "zl": False},
     {"name": "Kondensmilch", "category": "Milch", "portion_g": 300.0, "kcal": 330.0, "fat": 12.0, "sat_fat": 4.8, "sugar": 34.8, "protein": 20.4, "points": 13.5, "zr": False, "zb": False, "zl": False},
-    {"name": "Kidneybohnen", "category": "Huelsenfruechte", "portion_g": 130.0, "kcal": 165.0, "fat": 0.8, "sat_fat": 0.1, "sugar": 0.4, "protein": 11.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Kichererbsen", "category": "Huelsenfruechte", "portion_g": 130.0, "kcal": 200.0, "fat": 3.0, "sat_fat": 0.3, "sugar": 4.8, "protein": 10.5, "points": 0.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Mais", "category": "Gemuese", "portion_g": 100.0, "kcal": 86.0, "fat": 1.4, "sat_fat": 0.2, "sugar": 6.3, "protein": 3.3, "points": 1.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Mais aus der Dose", "category": "Gemuese", "portion_g": 100.0, "kcal": 95.0, "fat": 1.8, "sat_fat": 0.2, "sugar": 5.0, "protein": 3.4, "points": 1.5, "zr": False, "zb": True, "zl": True},
-    {"name": "Bohnen", "category": "Huelsenfruechte", "portion_g": 130.0, "kcal": 155.0, "fat": 0.7, "sat_fat": 0.1, "sugar": 0.5, "protein": 10.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Rote Bohnen", "category": "Huelsenfruechte", "portion_g": 130.0, "kcal": 160.0, "fat": 0.8, "sat_fat": 0.1, "sugar": 0.4, "protein": 10.8, "points": 0.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Weisse Bohnen", "category": "Huelsenfruechte", "portion_g": 130.0, "kcal": 150.0, "fat": 0.6, "sat_fat": 0.1, "sugar": 0.6, "protein": 10.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Shrimps", "category": "Meeresfruechte", "portion_g": 100.0, "kcal": 85.0, "fat": 0.5, "sat_fat": 0.1, "sugar": 0.0, "protein": 20.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Garnelen", "category": "Meeresfruechte", "portion_g": 100.0, "kcal": 85.0, "fat": 0.5, "sat_fat": 0.1, "sugar": 0.0, "protein": 20.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
-    {"name": "Meeresfruechte", "category": "Meeresfruechte", "portion_g": 100.0, "kcal": 90.0, "fat": 1.5, "sat_fat": 0.3, "sugar": 0.0, "protein": 17.0, "points": 1.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Kidneybohnen", "category": "Hülsenfrüchte", "portion_g": 130.0, "kcal": 165.0, "fat": 0.8, "sat_fat": 0.1, "sugar": 0.4, "protein": 11.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Kichererbsen", "category": "Hülsenfrüchte", "portion_g": 130.0, "kcal": 200.0, "fat": 3.0, "sat_fat": 0.3, "sugar": 4.8, "protein": 10.5, "points": 0.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Mais", "category": "Gemüse", "portion_g": 100.0, "kcal": 86.0, "fat": 1.4, "sat_fat": 0.2, "sugar": 6.3, "protein": 3.3, "points": 1.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Mais aus der Dose", "category": "Gemüse", "portion_g": 100.0, "kcal": 95.0, "fat": 1.8, "sat_fat": 0.2, "sugar": 5.0, "protein": 3.4, "points": 1.5, "zr": False, "zb": True, "zl": True},
+    {"name": "Bohnen", "category": "Hülsenfrüchte", "portion_g": 130.0, "kcal": 155.0, "fat": 0.7, "sat_fat": 0.1, "sugar": 0.5, "protein": 10.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Rote Bohnen", "category": "Hülsenfrüchte", "portion_g": 130.0, "kcal": 160.0, "fat": 0.8, "sat_fat": 0.1, "sugar": 0.4, "protein": 10.8, "points": 0.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Weiße Bohnen", "category": "Hülsenfrüchte", "portion_g": 130.0, "kcal": 150.0, "fat": 0.6, "sat_fat": 0.1, "sugar": 0.6, "protein": 10.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Shrimps", "category": "Meeresfrüchte", "portion_g": 100.0, "kcal": 85.0, "fat": 0.5, "sat_fat": 0.1, "sugar": 0.0, "protein": 20.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Garnelen", "category": "Meeresfrüchte", "portion_g": 100.0, "kcal": 85.0, "fat": 0.5, "sat_fat": 0.1, "sugar": 0.0, "protein": 20.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
+    {"name": "Meeresfrüchte", "category": "Meeresfrüchte", "portion_g": 100.0, "kcal": 90.0, "fat": 1.5, "sat_fat": 0.3, "sugar": 0.0, "protein": 17.0, "points": 1.0, "zr": False, "zb": True, "zl": True},
     {"name": "Lachs", "category": "Fisch", "portion_g": 125.0, "kcal": 244.0, "fat": 14.0, "sat_fat": 3.0, "sugar": 0.0, "protein": 28.0, "points": 3.0, "zr": False, "zb": False, "zl": True},
     {"name": "Thunfisch", "category": "Fisch", "portion_g": 100.0, "kcal": 116.0, "fat": 1.0, "sat_fat": 0.2, "sugar": 0.0, "protein": 26.0, "points": 0.0, "zr": False, "zb": True, "zl": True},
 ]
@@ -288,6 +296,19 @@ def normalize_known_foods(data: dict) -> bool:
     foods = data.get("foods", [])
     changed = False
 
+    label_name_map = {
+        "Paprika gruen": "Paprika grün",
+        "Weisse Bohnen": "Weiße Bohnen",
+        "Meeresfruechte": "Meeresfrüchte",
+        "Haehnchenbrust": "Hähnchenbrust",
+    }
+    label_category_map = {
+        "Gemuese": "Gemüse",
+        "Huelsenfruechte": "Hülsenfrüchte",
+        "Meeresfruechte": "Meeresfrüchte",
+        "Gefluegel": "Geflügel",
+    }
+
     corrections = {
         "milchkaffee": {
             "category": "Milch",
@@ -324,6 +345,16 @@ def normalize_known_foods(data: dict) -> bool:
     }
 
     for food in foods:
+        old_name = str(food.get("name", ""))
+        if old_name in label_name_map:
+            food["name"] = label_name_map[old_name]
+            changed = True
+
+        old_category = str(food.get("category", ""))
+        if old_category in label_category_map:
+            food["category"] = label_category_map[old_category]
+            changed = True
+
         key = food_name_key(food.get("name", ""))
         target = None
         if key in corrections:
@@ -700,13 +731,10 @@ def set_profile_form_state(profile_data: dict) -> None:
     st.session_state["p_gender"] = p["gender"]
     st.session_state["p_birth"] = datetime.strptime(p["birth_date"], "%Y-%m-%d").date()
     st.session_state["p_height"] = float(p["height"])
-    st.session_state["p_startw"] = float(p["start_weight"])
-    st.session_state["p_curw"] = float(p["current_weight"])
-    st.session_state["p_goalw"] = float(p["goal_weight"])
-    st.session_state["p_activity"] = p["activity_level"]
-    st.session_state["p_goal"] = p["weight_goal"]
-    st.session_state["p_plan"] = p["plan"]
-    st.session_state["p_weigh_day"] = p["weigh_day"]
+    try:
+        st.session_state["p_start_date"] = datetime.strptime(p.get("start_date", date.today().isoformat()), "%Y-%m-%d").date()
+    except ValueError:
+        st.session_state["p_start_date"] = date.today()
     st.session_state["p_activity_extra_mode"] = p["activity_extra_mode"]
 
 
@@ -926,6 +954,57 @@ def current_weigh_week_start(profile: dict) -> date:
     return today - timedelta(days=days_since)
 
 
+def week_start_for_day(profile: dict, selected_day: date) -> date:
+    """Wochenstart fuer einen beliebigen Tag auf Basis des Wiegetags."""
+    weigh_day_name = profile.get("weigh_day", "Montag")
+    day_idx = WEIGH_DAYS.index(weigh_day_name)  # 0=Mo, 6=So
+    days_since = (selected_day.weekday() - day_idx) % 7
+    return selected_day - timedelta(days=days_since)
+
+
+def clear_log_for_day(logs: list, day_str: str) -> bool:
+    """Loescht den kompletten Tages-Log fuer ein Datum."""
+    before = len(logs)
+    logs[:] = [l for l in logs if str(l.get("date", "")) != day_str]
+    return len(logs) != before
+
+
+def clear_last_days_logs(logs: list, days: int) -> int:
+    """Loescht alle Logs der letzten N Tage (inkl. heute)."""
+    if days <= 0:
+        return 0
+    start_day = date.today() - timedelta(days=days - 1)
+    before = len(logs)
+    kept_logs = []
+    for l in logs:
+        raw_date = str(l.get("date", "")).strip()
+        try:
+            log_day = date.fromisoformat(raw_date)
+        except ValueError:
+            kept_logs.append(l)
+            continue
+        if start_day <= log_day <= date.today():
+            continue
+        kept_logs.append(l)
+    logs[:] = kept_logs
+    return before - len(logs)
+
+
+def reset_tracking_data(store: dict, keep_profile: bool = True, keep_food_data: bool = True, keep_logs: bool = False) -> None:
+    """Setzt Tracking-Daten zurueck. Optional Profil/Food/Log-Daten auf Default."""
+    preserved_profile = sanitize_profile_data(store.get("profile", DEFAULT_PROFILE))
+    if not keep_food_data:
+        store["foods"] = list(DEFAULT_FOODS)
+        ensure_default_foods_present(store)
+        store["combos"] = []
+        store["favorites"] = []
+    if not keep_logs:
+        store["logs"] = []
+    store["weights"] = []
+    store["measurements"] = []
+    store["profile"] = preserved_profile if keep_profile else DEFAULT_PROFILE.copy()
+
+
 def weekly_extra_used(logs: list, week_start: date, profile: dict | None = None, as_of: date | None = None) -> float:
     """Summe aller verbrauchten Wochenextra-Punkte innerhalb der aktuellen Wiege-Woche."""
     period_end = as_of or date.today()
@@ -971,19 +1050,15 @@ def day_budget_status(log: dict, profile: dict, week_extra_left_before_day: floa
 def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
     """7-Tage Wochen-Streifen: Vergangene Tage grün, heute magenta, Zukunft grau (nicht klickbar)."""
     today = date.today()
-    week_start = current_weigh_week_start(profile)
+    current_week_start = current_weigh_week_start(profile)
 
     # Gewählten Tag aus Query-Param lesen (Link-Navigation)
     try:
-        raw_day = st.query_params.get("day", today.isoformat())
+        raw_day = st.query_params.get("day", st.session_state.get(date_key, today).isoformat())
         selected = date.fromisoformat(str(raw_day))
     except (ValueError, AttributeError):
         selected = today
-    # Clamp: kein zukünftiger Tag, kein Tag vor dieser Woche
-    selected = max(week_start, min(today, selected))
-    st.session_state[date_key] = selected
 
-    # Wochennummer berechnen
     all_dates = []
     for _log in store.get("logs", []):
         try:
@@ -995,6 +1070,25 @@ def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
             all_dates.append(date.fromisoformat(_w["date"]))
         except (KeyError, ValueError):
             pass
+    for _m in store.get("measurements", []):
+        try:
+            all_dates.append(date.fromisoformat(str(_m.get("date", ""))[:10]))
+        except ValueError:
+            pass
+
+    earliest_data_day = min(all_dates) if all_dates else current_week_start
+
+    # Clamp: kein zukünftiger Tag, nicht vor dem ersten vorhandenen Tag
+    selected = min(today, selected)
+    if selected < earliest_data_day:
+        selected = earliest_data_day
+
+    st.session_state[date_key] = selected
+
+    # Angezeigte Woche richtet sich nach dem gewählten Tag (nicht immer nur aktuelle Woche)
+    week_start = week_start_for_day(profile, selected)
+
+    # Wochennummer berechnen
     week_num = 1
     if all_dates:
         earliest = min(all_dates)
@@ -1048,8 +1142,28 @@ def weekly_strip_nav(date_key: str, profile: dict, store: dict) -> date:
         f"Woche {week_num} &nbsp;·&nbsp; "
         f"{week_start.strftime('%d.%m.')} – {week_end.strftime('%d.%m.')}"
     )
+    prev_week_day = max(earliest_data_day, week_start - timedelta(days=7))
+    next_week_day = min(today, week_start + timedelta(days=7))
+    next_disabled = week_start + timedelta(days=7) > today
+
+    nav_line = (
+        f'<div style="display:flex;gap:6px;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+        f'<a href="./?nav={current_nav}&day={prev_week_day.isoformat()}" target="_self" '
+        f'style="text-decoration:none;font-size:0.72rem;padding:4px 8px;border-radius:8px;border:1px solid #d7d7df;color:#444;background:#fff;">◀ Vorwoche</a>'
+        f'<a href="./?nav={current_nav}&day={today.isoformat()}" target="_self" '
+        f'style="text-decoration:none;font-size:0.72rem;padding:4px 8px;border-radius:8px;border:1px solid #e91e8c;color:#e91e8c;background:#fff;">Heute</a>'
+        + (
+            f'<span style="font-size:0.72rem;padding:4px 8px;border-radius:8px;border:1px solid #ececf2;color:#bbb;background:#f7f7fa;">Nächste Woche ▶</span>'
+            if next_disabled
+            else f'<a href="./?nav={current_nav}&day={next_week_day.isoformat()}" target="_self" '
+            f'style="text-decoration:none;font-size:0.72rem;padding:4px 8px;border-radius:8px;border:1px solid #d7d7df;color:#444;background:#fff;">Nächste Woche ▶</a>'
+        )
+        + "</div>"
+    )
+
     st.markdown(
-        f'<div style="font-size:0.7rem;color:#888;margin-bottom:4px;">{week_label}</div>'
+        nav_line
+        + f'<div style="font-size:0.7rem;color:#888;margin-bottom:4px;">{week_label}</div>'
         f'<div style="display:flex;gap:3px;margin-bottom:10px;">{" ".join(buttons_html)}</div>',
         unsafe_allow_html=True,
     )
@@ -2605,12 +2719,20 @@ if active_page == "profil":
         height = st.number_input("Größe (cm)", min_value=120.0, max_value=230.0,
                                  value=float(profile["height"]), step=0.5, key="p_height")
     with c2:
+        try:
+            start_date_val = datetime.strptime(profile.get("start_date", date.today().isoformat()), "%Y-%m-%d").date()
+        except ValueError:
+            start_date_val = date.today()
+        start_date = st.date_input("Startdatum", value=start_date_val, format="DD.MM.YYYY", key="p_start_date")
+    with c3:
         start_w = st.number_input("Startgewicht (kg)", min_value=30.0, max_value=300.0,
                                   value=float(profile["start_weight"]), step=0.1, key="p_startw")
-    with c3:
+    with c4:
         current_w = st.number_input("Aktuell (kg)", min_value=30.0, max_value=300.0,
                                     value=float(profile["current_weight"]), step=0.1, key="p_curw")
-    with c4:
+    
+    goal_c1, goal_c2 = st.columns(2)
+    with goal_c1:
         goal_w = st.number_input("Zielgewicht (kg)", min_value=30.0, max_value=300.0,
                                  value=float(profile["goal_weight"]), step=0.1, key="p_goalw")
 
@@ -2667,6 +2789,7 @@ if active_page == "profil":
             "gender": gender,
             "birth_date": birth.isoformat(),
             "height": height,
+            "start_date": start_date.isoformat(),
             "start_weight": start_w,
             "current_weight": current_w,
             "goal_weight": goal_w,
@@ -2685,9 +2808,10 @@ if active_page == "profil":
         st.success("Profil gespeichert – alle Tagespunkte neu berechnet.")
         st.rerun()
 
+
     st.divider()
     st.write("Profil sichern und wiederherstellen")
-    st.caption("Du kannst dein Profil als JSON exportieren, per E-Mail verschicken und spaeter wieder importieren.")
+    st.caption("Du kannst dein Profil als JSON exportieren, per E-Mail verschicken und später wieder importieren.")
 
     export_json = json.dumps(store.get("profile", DEFAULT_PROFILE), ensure_ascii=False, indent=2)
     st.download_button(
@@ -2707,7 +2831,7 @@ if active_page == "profil":
 
     if st.button("Profil aus Datei importieren", key="profile_import_btn"):
         if uploaded_profile_file is None:
-            st.error("Bitte zuerst eine JSON-Datei auswaehlen.")
+            st.error("Bitte zuerst eine JSON-Datei auswählen.")
         else:
             try:
                 imported_raw = json.loads(uploaded_profile_file.getvalue().decode("utf-8"))
@@ -2719,11 +2843,11 @@ if active_page == "profil":
                 st.success("Profil erfolgreich importiert.")
                 st.rerun()
             except Exception:
-                st.error("Import fehlgeschlagen. Bitte eine gueltige Profil-JSON verwenden.")
+                st.error("Import fehlgeschlagen. Bitte eine gültige Profil-JSON verwenden.")
 
     st.divider()
     st.write("Komplette App-Daten sichern (inkl. Mahlzeiten und Aktivitäten)")
-    st.caption("Exportiere alle Daten als JSON und importiere sie auf einem anderen Geraet (Windows, iPhone, iPad).")
+    st.caption("Exportiere alle Daten als JSON und importiere sie auf einem anderen Gerät (Windows, iPhone, iPad).")
 
     full_backup_payload = build_backup_payload(store)
     full_backup_json = json.dumps(full_backup_payload, ensure_ascii=False, indent=2)
@@ -2745,7 +2869,7 @@ if active_page == "profil":
 
     if st.button("Komplett-Backup importieren", key="full_backup_import_btn"):
         if uploaded_backup_file is None:
-            st.error("Bitte zuerst eine Backup-JSON auswaehlen.")
+            st.error("Bitte zuerst eine Backup-JSON auswählen.")
         else:
             try:
                 imported_backup_raw = json.loads(uploaded_backup_file.getvalue().decode("utf-8"))
@@ -2753,11 +2877,50 @@ if active_page == "profil":
                 store.clear()
                 store.update(imported_data)
                 save_store(store)
-                set_profile_form_state(store.get("profile", DEFAULT_PROFILE))
                 st.success("Backup erfolgreich importiert. Mahlzeiten, Aktivitäten und Schritte sind aktualisiert.")
                 st.rerun()
             except Exception:
-                st.error("Backup-Import fehlgeschlagen. Bitte eine gueltige Backup-JSON verwenden.")
+                st.error("Backup-Import fehlgeschlagen. Bitte eine gültige Backup-JSON verwenden.")
+
+    st.divider()
+    st.write("Zurücksetzen")
+    st.caption("Wenn du neu starten willst, kannst du hier Einträge löschen oder alles zurücksetzen.")
+
+    reset_mode = st.selectbox(
+        "Reset-Modus",
+        [
+            "Nur Gewicht und Maße löschen (Mahlzeiten bleiben)",
+            "Tracking-Daten löschen (inkl. Mahlzeiten und Aktivitäten)",
+            "Komplett zurücksetzen (inkl. Profil)",
+        ],
+        key="reset_mode",
+    )
+    st.caption("Food-Daten und Kombi-Mahlzeiten bleiben erhalten, ausser bei Komplett-Reset.")
+    reset_confirm = st.text_input("Zur Bestätigung RESET eingeben", key="reset_confirm")
+    reset_full_ack = st.checkbox(
+        "Ich bin sicher: Beim Komplett-Reset wird auch mein Profil gelöscht.",
+        value=False,
+        key="reset_full_ack",
+    )
+
+    if st.button("Reset ausführen", key="run_reset"):
+        if reset_confirm.strip().upper() != "RESET":
+            st.error("Bitte zur Sicherheit exakt RESET eingeben.")
+        elif reset_mode.startswith("Komplett") and not reset_full_ack:
+            st.error("Bitte die Sicherheits-Checkbox für den Komplett-Reset aktivieren.")
+        else:
+            is_full_reset = reset_mode.startswith("Komplett")
+            delete_logs = "inkl. Mahlzeiten" in reset_mode
+            keep_profile = not is_full_reset
+            reset_tracking_data(
+                store,
+                keep_profile=keep_profile,
+                keep_food_data=not is_full_reset,
+                keep_logs=not (delete_logs or is_full_reset),
+            )
+            save_store(store)
+            st.success("Reset abgeschlossen.")
+            st.rerun()
 
 if active_page == "food":
     all_foods = sort_foods_by_usage(store["foods"], store["logs"])
@@ -2999,6 +3162,23 @@ if active_page == "mahlz":
     log = todays_log(store["logs"], day)
     log.setdefault("steps", 0)
 
+    clear_col1, clear_col2 = st.columns([2, 2])
+    with clear_col1:
+        if st.button("Tag zurücksetzen (alle Einträge löschen)", key=f"clear_day_{day}"):
+            if clear_log_for_day(store["logs"], day):
+                save_store(store)
+                st.success(f"{d.strftime('%d.%m.%Y')} wurde geleert.")
+                st.rerun()
+            st.info("Für diesen Tag gab es keine gespeicherten Einträge.")
+    with clear_col2:
+        if st.button("Letzte 7 Tage löschen", key="clear_last_7_days"):
+            removed_count = clear_last_days_logs(store["logs"], 7)
+            if removed_count > 0:
+                save_store(store)
+                st.success(f"{removed_count} Tageseinträge aus den letzten 7 Tagen gelöscht.")
+                st.rerun()
+            st.info("Keine Eintraege in den letzten 7 Tagen gefunden.")
+
     meals_count = len(log.get("entries", []))
     _mahlz_day_label = d.strftime('%d.%m.%Y')
 
@@ -3123,7 +3303,7 @@ if active_page == "mahlz":
                             save_store(store)
                             st.success(f"{fav_combo.get('name', 'Kombi')} hinzugefügt")
                             st.rerun()
-            st.caption("Fixierte Favoriten bleiben dauerhaft oben und sind hier mit einem Klick eintragbar.")
+            st.caption("Fixierte Favoriten bleiben dauerhaft oben und sind hier mit einem Klick hinzufügbar.")
 
         selector_entries = []
         for combo in combos:
@@ -3937,7 +4117,7 @@ if active_page == "gewicht":
                     step=0.1,
                 )
             edit_note_val = st.text_input("Notiz bearbeiten", value=str(current_weight_entry.get("note", "")))
-            save_weight_edit = st.form_submit_button("Gewichts-Eintrag speichern")
+            save_weight_edit = st.form_submit_button("Gewichtseintrag speichern")
 
             if save_weight_edit:
                 store["weights"][selected_edit_idx] = {
@@ -3951,7 +4131,7 @@ if active_page == "gewicht":
                 except (TypeError, ValueError):
                     pass
                 save_store(store)
-                st.success("Gewichts-Eintrag aktualisiert")
+                st.success("Gewichtseintrag aktualisiert")
                 st.rerun()
 
         st.write("Eintrag löschen")
