@@ -376,6 +376,37 @@ def normalize_known_foods(data: dict) -> bool:
     return changed
 
 
+def normalize_combo_items(data: dict) -> bool:
+    """Ergaenzt fehlende Kategorien in alten Kombi-Komponenten, wenn die Zuordnung eindeutig ist."""
+    foods = data.get("foods", [])
+    combos = data.get("combos", [])
+    foods_by_name: dict[str, list[dict]] = {}
+
+    for food in foods:
+        key = food_name_key(food.get("name", ""))
+        if not key:
+            continue
+        foods_by_name.setdefault(key, []).append(food)
+
+    changed = False
+    for combo in combos:
+        for item in combo.get("items", []):
+            if str(item.get("food_category", "")).strip():
+                continue
+
+            matches = foods_by_name.get(food_name_key(item.get("food_name", "")), [])
+            if not matches:
+                continue
+
+            categories = {str(food.get("category", "")).strip() for food in matches}
+            categories.discard("")
+            if len(categories) == 1:
+                item["food_category"] = next(iter(categories))
+                changed = True
+
+    return changed
+
+
 def load_store() -> dict:
     if not DATA_FILE.exists():
         data = default_store()
@@ -408,6 +439,9 @@ def load_store() -> dict:
         has_changes = True
 
     if normalize_known_foods(data):
+        has_changes = True
+
+    if normalize_combo_items(data):
         has_changes = True
 
     if recalculate_old_log_points(data):
@@ -1211,15 +1245,33 @@ def sort_foods_by_usage(foods: list[dict], logs: list) -> list[dict]:
     return sorted(foods, key=lambda f: (-scores.get(f.get("name", ""), 0.0), f.get("name", "").lower()))
 
 
+def combo_item_food_match(item: dict, foods: list[dict]) -> dict | None:
+    """Ordnet eine Kombi-Komponente möglichst eindeutig dem gespeicherten Lebensmittel zu."""
+    item_name_key = food_name_key(item.get("food_name", ""))
+    if not item_name_key:
+        return None
+
+    item_category_key = food_name_key(item.get("food_category", ""))
+    fallback_match = None
+
+    for food in foods:
+        if food_name_key(food.get("name", "")) != item_name_key:
+            continue
+        if fallback_match is None:
+            fallback_match = food
+        if item_category_key and food_name_key(food.get("category", "")) == item_category_key:
+            return food
+
+    return fallback_match
+
+
 def combo_points_for_plan(combo: dict, foods: list[dict], plan: str) -> float:
     """Berechnet Punkte einer gespeicherten Kombi aus den enthaltenen Lebensmitteln."""
-    food_by_name = {f.get("name", ""): f for f in foods}
     total = 0.0
 
     for item in combo.get("items", []):
-        fname = item.get("food_name", "")
         amount = float(item.get("amount_g", 0.0))
-        food = food_by_name.get(fname)
+        food = combo_item_food_match(item, foods)
         if not food:
             continue
 
@@ -3413,7 +3465,13 @@ if active_page == "mahlz":
                         step=1.0,
                         key=f"combo_amount_{idx}",
                     )
-                    combo_items.append({"food_name": part_food["name"], "amount_g": float(part_amount)})
+                    combo_items.append(
+                        {
+                            "food_name": part_food["name"],
+                            "food_category": part_food.get("category", ""),
+                            "amount_g": float(part_amount),
+                        }
+                    )
 
                 temp_combo = {"name": combo_name.strip(), "items": combo_items}
                 preview_combo_pts = combo_points_for_plan(temp_combo, store["foods"], store["profile"]["plan"])
